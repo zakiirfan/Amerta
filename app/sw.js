@@ -13,6 +13,8 @@ const FILES = [
   './',
   'manifest.webmanifest',
   'css/app.css',
+  'fonts/nunito.woff2',
+  'fonts/fredoka.woff2',
   'js/version.js',
   'js/app.js',
   'js/pwa.js',

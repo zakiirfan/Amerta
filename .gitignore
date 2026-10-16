@@ -1,0 +1,9 @@
+# Pengaturan lokal editor/asisten, tidak perlu ikut ke GitHub
+.claude/
+.vscode/
+node_modules/
+
+# File sampah sistem
+Thumbs.db
+desktop.ini
+.DS_Store

@@ -157,12 +157,28 @@ cari pilihan dengan arti yang sama.
 1. Naikkan nomor versi di `app/js/version.js` (misalnya `0.9.0` menjadi `0.9.1`).
    **Wajib.** Tanpa ini, HP yang sudah memasang aplikasi tidak mengunduh versi baru.
 2. Kalau ada file baru di `app/`, tambahkan namanya ke daftar `FILES` di `app/sw.js`.
-3. Upload file yang berubah ke GitHub: buka repositori, klik **Add file**, lalu
-   **Upload files**. Seret file atau folder yang berubah dengan susunan folder yang sama,
-   lalu **Commit changes**. File dengan nama sama otomatis tertimpa.
+3. Kirim perubahan ke GitHub dengan **salah satu** cara berikut:
+   - **Dari laptop ini** (folder sudah tersambung ke GitHub): `git add -A`, `git commit -m "keterangan"`, lalu `git push`.
+   - **Lewat situs GitHub**: buka repositori, klik **Add file**, lalu **Upload files**. Seret file
+     yang berubah dengan susunan folder yang sama, lalu **Commit changes**.
 4. Cloudflare otomatis deploy ulang dalam 1–2 menit. Statusnya terlihat di tab **Deployments**.
 5. Di HP, buka aplikasinya. Akan muncul banner **"Ada versi baru aplikasi"**.
    Ketuk **Perbarui**.
+
+### Bekerja dari beberapa device
+
+Repositori GitHub adalah **sumber utama**. Supaya edit dari laptop, HP, atau situs GitHub tidak saling menimpa:
+
+1. **Sebelum mulai mengedit** di device mana pun, ambil dulu versi terbaru:
+   - di laptop: `git pull`
+   - di situs GitHub: selalu edit langsung di sana, karena isinya pasti yang terbaru.
+2. **Setelah selesai**, segera kirim ke GitHub (`git push` atau **Commit changes** di situs).
+3. Kalau file yang sama diubah di dua device, Git akan memberi tahu ada **konflik** dan tidak
+   menimpa diam-diam. Pilih versi yang dipakai, lalu kirim lagi.
+4. Jangan pernah memakai `git push --force`.
+
+Edit kode tidak memengaruhi data karya di HP, karena data tersimpan di HP masing-masing, bukan di GitHub.
+Untuk memindahkan data antar-HP, pakai Ekspor/Impor cadangan.
 
 ## Struktur data
 

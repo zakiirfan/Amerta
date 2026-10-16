@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Museum Karya Anak</title>
+  <meta name="description" content="Katalog pribadi karya anak. Semua data tersimpan di HP ini saja.">
+  <meta name="theme-color" content="#1F6F78">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon-192.png" type="image/png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Karya Anak">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="stylesheet" href="css/app.css">
+  <script src="js/version.js"></script>
+  <script type="module" src="js/app.js"></script>
+</head>
+<body>
+  <header class="app-bar">
+    <button type="button" id="tombol-kembali" class="tombol-ikon" aria-label="Kembali" hidden>←</button>
+    <h1 id="judul-layar" class="app-judul">Museum Karya Anak</h1>
+  </header>
+
+  <main id="layar" class="layar" tabindex="-1"></main>
+
+  <nav id="nav-bawah" class="nav-bawah" aria-label="Menu utama">
+    <button type="button" data-ke="#/" data-nav="beranda">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>
+      <span>Beranda</span>
+    </button>
+    <button type="button" data-ke="#/cari" data-nav="cari">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
+      <span>Cari</span>
+    </button>
+    <button type="button" data-ke="#/karya/baru" data-nav="tambah" class="nav-tambah">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+      <span>Tambah karya</span>
+    </button>
+    <button type="button" data-ke="#/pengaturan" data-nav="pengaturan">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg>
+      <span>Pengaturan</span>
+    </button>
+  </nav>
+
+  <div id="banner-update" class="banner" role="status" hidden>
+    <span>Ada versi baru aplikasi.</span>
+    <button type="button" id="tombol-update" class="tombol tombol-kecil">Perbarui</button>
+  </div>
+
+  <dialog id="panduan-pasang" class="lembar" aria-labelledby="panduan-judul">
+    <h2 id="panduan-judul">Pasang ke layar utama</h2>
+    <p>
+      Semua karya hanya disimpan di HP ini. Kalau aplikasi dipasang ke layar utama,
+      data lebih aman dari pembersihan otomatis browser, dan aplikasi bisa dibuka tanpa internet.
+    </p>
+
+    <button type="button" id="tombol-pasang-langsung" class="tombol tombol-utama" hidden>Pasang sekarang</button>
+
+    <div class="tab-pilihan" role="tablist" aria-label="Jenis HP">
+      <button type="button" role="tab" class="tab" data-os="android" aria-selected="true">Android</button>
+      <button type="button" role="tab" class="tab" data-os="iphone" aria-selected="false">iPhone</button>
+    </div>
+
+    <ol class="langkah" data-panel="android">
+      <li>Buka aplikasi ini di <strong>Chrome</strong>.</li>
+      <li>Ketuk tombol <strong>⋮</strong> (titik tiga) di kanan atas.</li>
+      <li>Pilih <strong>Tambahkan ke layar utama</strong> atau <strong>Instal aplikasi</strong>.</li>
+      <li>Ketuk <strong>Instal</strong>, lalu buka dari ikon <strong>Karya Anak</strong>.</li>
+    </ol>
+
+    <ol class="langkah" data-panel="iphone" hidden>
+      <li>Buka aplikasi ini di <strong>Safari</strong>.</li>
+      <li>Ketuk tombol <strong>Bagikan</strong> (kotak dengan panah ke atas).</li>
+      <li>Gulir ke bawah, pilih <strong>Tambahkan ke Layar Utama</strong>.</li>
+      <li>Ketuk <strong>Tambah</strong>, lalu buka dari ikon <strong>Karya Anak</strong>.</li>
+    </ol>
+    <p class="catatan" data-panel="iphone" hidden>
+      Penting di iPhone: data di ikon layar utama <strong>terpisah</strong> dari data di Safari.
+      Pasang dulu, lalu selalu buka dari ikon sebelum mulai menyimpan karya.
+    </p>
+
+    <button type="button" class="tombol" data-tutup>Mengerti</button>
+  </dialog>
+
+  <noscript>
+    <p class="kartu">Aplikasi ini butuh JavaScript. Aktifkan JavaScript di browser Anda.</p>
+  </noscript>
+</body>
+</html>

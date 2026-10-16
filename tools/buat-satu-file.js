@@ -50,12 +50,19 @@ const skrip = [
   ...urutan.map((n) => bungkus(n, kodeModul.get(n))),
 ].join('\n').replace(/<\/script/gi, '<\\/script');
 
-const css = `${baca('css/app.css')}
+// Huruf disisipkan langsung ke CSS (data URI), karena tidak ada folder fonts/ di sebelah file.
+const cssAsli = baca('css/app.css').replace(
+  /url\("\.\.\/(fonts\/[\w-]+\.woff2)"\)/g,
+  (_, f) => `url("${dataUri(f, 'font/woff2')}")`,
+);
+if (cssAsli.includes('../fonts/')) throw new Error('Ada huruf di app.css yang belum tersisipkan');
+
+const css = `${cssAsli}
 /* Khusus versi satu file */
 .pita-satu-file {
   padding: 6px 16px;
-  background: #FFF1D6;
-  color: #5E5E5E;
+  background: #FDF0CF;
+  color: #555D70;
   font-size: 0.85rem;
   text-align: center;
 }`;

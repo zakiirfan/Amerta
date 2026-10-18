@@ -14,6 +14,9 @@ import { bukaPanduan } from './panduan-pasang.js';
 import { punyaCerita, urutkanTerbaru } from './karya.js';
 import { htmlGaleri, siapkanGaleri } from './galeri.js';
 import { pesanPengingatEkspor, tundaPengingat, jalankanEkspor } from './cadangan.js';
+import {
+  maskotKrayon, coretanLatar, htmlJemuran, siapkanJemuran,
+} from './hiasan.js';
 
 const JUMLAH_WARNA_AVATAR = 6;
 
@@ -70,18 +73,34 @@ export async function layarBeranda() {
     </section>` : '';
 
   return {
-    judul: 'Museum Karya Anak',
+    judul: 'Amerta',
     kembaliKe: null,
     nav: 'beranda',
     isi: `
+      <div class="beranda">
+      ${coretanLatar()}
+      <section class="sapaan">
+        ${maskotKrayon()}
+        <div class="gelembung">
+          <p class="tagline">Abadikan Momen Berarti Anda</p>
+          <p class="gelembung-teks">${(() => {
+    if (karya.length) return 'Karya terbaru dijemur di bawah ini. Ketuk untuk melihat.';
+    if (semua.length) return 'Ketuk tombol <strong>+</strong> di bawah untuk menyimpan karya pertama.';
+    return 'Halo! Mulai dengan menambahkan anak dulu, ya.';
+  })()}</p>
+        </div>
+      </section>
+      ${htmlJemuran(urutkanTerbaru(karya))}
       ${kartuPengingat}
       ${semua.length ? `<h2 class="subjudul">Pilih anak</h2><div class="daftar-anak">${daftar}</div>` : kosong}
       <button type="button" class="tombol ${semua.length ? '' : 'tombol-utama'}" data-ke="#/anak/baru">+ Tambah anak</button>
       <footer class="kaki">
         ${sudahTerpasang() || modeSatuFile ? '' :'<button type="button" class="tombol-teks" id="buka-panduan">Cara pasang ke layar utama</button>'}
         <p class="redup">Versi ${esc(self.APP_VERSION)} · Data hanya tersimpan di HP ini</p>
-      </footer>`,
+      </footer>
+      </div>`,
     siapkan(main) {
+      siapkanJemuran(main);
       const t = main.querySelector('#buka-panduan');
       if (t) t.addEventListener('click', bukaPanduan);
       const ekspor = main.querySelector('#ekspor-sekarang');

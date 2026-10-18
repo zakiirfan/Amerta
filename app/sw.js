@@ -37,6 +37,7 @@ const FILES = [
   'js/cadangan.js',
   'js/contoh.js',
   'js/layar-pengaturan.js',
+  'js/hiasan.js',
   'icons/icon-192.png',
   'icons/icon-512.png',
   'icons/icon-maskable-512.png',

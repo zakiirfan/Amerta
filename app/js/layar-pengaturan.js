@@ -66,7 +66,7 @@ export async function layarPengaturan() {
         <h2>Penyimpanan</h2>
         <ul class="daftar-status">
           <li><span>Penyimpanan permanen</span><strong class="${kelasPermanen}">${teksPermanen}</strong></li>
-          <li><span>Isi museum</span><strong>${anak.length} anak, ${karya.length} karya</strong></li>
+          <li><span>Isi Amerta</span><strong>${anak.length} anak, ${karya.length} karya</strong></li>
           <li><span>Foto, rekaman, video</span><strong>${formatUkuran(ukuranMedia)}</strong></li>
           ${perkiraan && perkiraan.usage ? `<li><span>Total dipakai di browser</span><strong>${formatUkuran(perkiraan.usage)}</strong></li>` : ''}
         </ul>
@@ -108,7 +108,7 @@ export async function layarPengaturan() {
     : '<button type="button" class="tombol" id="muat-contoh">Muat data contoh</button>'}
       </section>
 
-      <p class="kaki redup">Museum Karya Anak versi ${esc(self.APP_VERSION)}<br>
+      <p class="kaki redup">Amerta versi ${esc(self.APP_VERSION)}<br>
         Tanpa server, tanpa akun, tanpa analytics.</p>`,
     siapkan(main) {
       const muatUlang = () => pergi('#/pengaturan', { ganti: true });

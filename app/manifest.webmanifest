@@ -1,7 +1,7 @@
 {
-  "name": "Museum Karya Anak",
-  "short_name": "Karya Anak",
-  "description": "Katalog pribadi karya anak. Semua data tersimpan di HP ini saja.",
+  "name": "Amerta",
+  "short_name": "Amerta",
+  "description": "Amerta. Abadikan Momen Berarti Anda. Katalog pribadi karya anak. Semua data tersimpan di HP ini saja.",
   "lang": "id",
   "start_url": "./",
   "scope": "./",

@@ -1,4 +1,4 @@
-# Museum Karya Anak
+# Amerta (dulu Museum Karya Anak)
 
 Katalog pribadi foto karya anak (gambar dan prakarya) beserta ceritanya.
 Berbentuk web app (PWA) yang bisa dipasang ke layar utama HP.

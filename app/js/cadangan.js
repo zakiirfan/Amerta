@@ -47,7 +47,7 @@ export async function buatFileCadangan(onProgres) {
   }
 
   const data = {
-    aplikasi: 'museum-karya-anak',
+    aplikasi: 'museum-karya-anak', // penanda format cadangan; JANGAN diganti walau nama aplikasi kini Amerta
     format: FORMAT,
     versiAplikasi: self.APP_VERSION,
     versiDB: VERSI_DB,
@@ -60,7 +60,7 @@ export async function buatFileCadangan(onProgres) {
     { nama: 'data.json', data: JSON.stringify(data, null, 1) },
     {
       nama: 'BACA-SAYA.txt',
-      data: 'Cadangan Museum Karya Anak.\r\n'
+      data: 'Cadangan Amerta (dulu Museum Karya Anak).\r\n'
         + 'Untuk mengembalikan data: buka aplikasi > Pengaturan > Impor cadangan, lalu pilih file .zip ini.\r\n'
         + 'Jangan mengubah isi file ini.\r\n',
     },
@@ -89,7 +89,7 @@ export async function jalankanEkspor() {
     return false;
   }
 
-  const nama = `cadangan-museum-karya-anak-${hariIni()}.zip`;
+  const nama = `cadangan-amerta-${hariIni()}.zip`;
   const status = await simpanFile(hasil.blob, nama);
   if (status === 'batal') {
     kabar('Cadangan tidak disimpan');
@@ -140,7 +140,7 @@ export function tundaPengingat(hari = 3) {
 export async function bacaFileCadangan(file) {
   const zip = await bacaZip(file);
   const json = await zip.ambil('data.json');
-  if (!json) throw new Error('File ini bukan cadangan Museum Karya Anak.');
+  if (!json) throw new Error('File ini bukan cadangan Amerta.');
   let data;
   try {
     data = JSON.parse(await json.text());
@@ -148,7 +148,7 @@ export async function bacaFileCadangan(file) {
     throw new Error('Isi cadangan rusak (data.json tidak terbaca).');
   }
   if (!data || data.aplikasi !== 'museum-karya-anak' || !Array.isArray(data.karya) || !Array.isArray(data.anak)) {
-    throw new Error('File ini bukan cadangan Museum Karya Anak.');
+    throw new Error('File ini bukan cadangan Amerta.');
   }
   if (data.format > FORMAT) {
     throw new Error('Cadangan ini dibuat oleh versi aplikasi yang lebih baru. Perbarui aplikasi dulu, lalu coba lagi.');

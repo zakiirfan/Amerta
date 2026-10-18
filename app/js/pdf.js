@@ -76,7 +76,7 @@ function bungkus(teks, ukuran, tebal, lebar1, lebarLain = lebar1) {
  *            isian: [{ label, nilai, paragraf? }] }]
  * Satu karya dimulai di halaman baru. Hasil: Blob PDF.
  */
-export function buatPdf(daftar, { kaki = 'Museum Karya Anak' } = {}) {
+export function buatPdf(daftar, { kaki = 'Amerta' } = {}) {
   const objek = [null, null]; // 1 = katalog, 2 = daftar halaman
   const tambah = (bagian) => { objek.push(bagian); return objek.length; };
   const fontBiasa = tambah(['<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>']);
@@ -175,7 +175,7 @@ export function buatPdf(daftar, { kaki = 'Museum Karya Anak' } = {}) {
   });
   objek[0] = ['<< /Type /Catalog /Pages 2 0 R >>'];
   objek[1] = [`<< /Type /Pages /Kids [${idHalaman.map((i) => `${i} 0 R`).join(' ')}] /Count ${idHalaman.length} >>`];
-  const info = tambah(['<< /Producer (Museum Karya Anak) /Creator (Museum Karya Anak) >>']);
+  const info = tambah(['<< /Producer (Amerta) /Creator (Amerta) >>']);
 
   // Susun file. Semua teks di atas ASCII murni, jadi panjang teks = jumlah byte.
   const bagian = [];

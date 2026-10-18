@@ -14,6 +14,7 @@
 // Untuk perubahan struktur, tambahkan langkah baru di akhir daftar.
 // Langkah ke-i membawa database dari versi i ke versi i+1.
 
+// Nama lama aplikasi (sekarang Amerta). JANGAN diganti: data di HP tersimpan dengan nama ini.
 const NAMA_DB = 'museum-karya-anak';
 
 const MIGRASI = [

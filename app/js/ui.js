@@ -39,9 +39,9 @@ export function tampilkanLayar(layar, { onKembali }) {
   const main = document.getElementById('layar');
   const tombolKembali = document.getElementById('tombol-kembali');
 
-  document.getElementById('judul-layar').textContent = layar.judul || 'Museum Karya Anak';
+  document.getElementById('judul-layar').textContent = layar.judul || 'Amerta';
   document.title = layar.judul && layar.kembaliKe
-    ? `${layar.judul} · Museum Karya Anak` : 'Museum Karya Anak';
+    ? `${layar.judul} · Amerta` : 'Amerta';
 
   tombolKembali.hidden = !layar.kembaliKe;
   tombolKembali.onclick = () => onKembali(layar.kembaliKe);

@@ -70,7 +70,7 @@ export async function layarBeranda() {
     </section>` : '';
 
   return {
-    judul: 'Museum Karya Anak',
+    judul: 'Amerta',
     kembaliKe: null,
     nav: 'beranda',
     isi: `

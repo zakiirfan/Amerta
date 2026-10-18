@@ -1,6 +1,6 @@
 # Museum Karya Anak — aturan kerja
 
-Proyek ini disimpan di GitHub (https://github.com/zakiirfan/Museum-Karya-Anak) dan bisa diedit
+Proyek ini disimpan di GitHub (https://github.com/zakiirfan/Amerta) dan bisa diedit
 dari beberapa device. Cloudflare Worker `karyaanak` (https://karyaanak.azakfan.workers.dev) deploy dari branch `main`
 lewat `wrangler.jsonc` (menyajikan folder `app`). Jangan ganti nama Worker: data di HP terikat pada alamatnya.
 

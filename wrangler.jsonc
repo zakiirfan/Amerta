@@ -1,0 +1,18 @@
+// Pengaturan Cloudflare Worker untuk aplikasi ini.
+// Alamat aplikasi: https://karyaanak.azakfan.workers.dev
+//
+// ⚠️ Jangan ganti "name". Data di HP terikat pada alamat di atas;
+// nama lain = alamat lain = data di HP tidak terbaca.
+//
+// Worker ini hanya menyajikan file statis dari folder app/ (tanpa kode server).
+{
+  "name": "karyaanak",
+  "compatibility_date": "2025-09-01",
+  "assets": {
+    "directory": "./app"
+  },
+  // Tanpa analytics atau log permintaan (aturan proyek: tidak ada analytics).
+  "observability": {
+    "enabled": false
+  }
+}

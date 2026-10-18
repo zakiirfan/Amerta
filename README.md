@@ -104,8 +104,8 @@ node tools/buat-satu-file.js
 Kode disimpan di GitHub. Cloudflare tersambung ke GitHub dan otomatis
 memperbarui situs setiap kali isi GitHub berubah. Gratis, dan HTTPS-nya otomatis.
 
-> **Yang dipakai sekarang:** Cloudflare **Worker** bernama `karyaanak`, alamat
-> <https://karyaanak.azakfan.workers.dev>. Pengaturannya ada di `wrangler.jsonc`
+> **Yang dipakai sekarang:** Cloudflare **Worker** bernama `amerta`, alamat
+> <https://amerta.azakfan.workers.dev> (dulu `karyaanak.azakfan.workers.dev`). Pengaturannya ada di `wrangler.jsonc`
 > (menyajikan folder `app/`). Cara menyambungkannya ke GitHub ada di
 > "Langkah 2b" di bawah. Langkah 2 (Pages) hanya untuk memasang dari awal di akun lain.
 
@@ -151,11 +151,11 @@ Kalau ingin memakai nama yang sama, hapus dulu proyek lama di Cloudflare
 (**Settings**, lalu **Delete project**), baru buat yang baru. Kalau sudah ada karya asli di alamat lama,
 **ekspor cadangan dulu** dari alamat lama, lalu impor di alamat baru.
 
-### Langkah 2b: sambungkan Worker `karyaanak` ke GitHub
+### Langkah 2b: sambungkan Worker `amerta` ke GitHub
 
 Dipakai kalau aplikasi dipasang sebagai Worker (alamat `….workers.dev`), bukan Pages.
 
-1. Buka <https://dash.cloudflare.com>, pilih **Workers & Pages**, lalu klik Worker **karyaanak**.
+1. Buka <https://dash.cloudflare.com>, pilih **Workers & Pages**, lalu klik Worker **amerta**.
 2. Buka **Settings**, lalu bagian **Build**. Klik **Connect** di samping **Git repository**.
 3. Pilih akun GitHub dan repositori `Amerta` (dulu bernama `Museum-Karya-Anak`).
 4. Isi pengaturan:
@@ -165,7 +165,9 @@ Dipakai kalau aplikasi dipasang sebagai Worker (alamat `….workers.dev`), bukan
    - **Root directory** / **Path**: *kosongkan* (atau `/`)
 5. Klik **Connect**. Setiap perubahan di `main` akan otomatis dipasang (lihat tab **Deployments**).
 
-Jangan ganti nama Worker. Data di HP terikat pada alamat `karyaanak.azakfan.workers.dev`.
+Jangan ganti nama Worker (harus sama dengan `"name"` di `wrangler.jsonc`). Data di HP terikat pada alamat
+`amerta.azakfan.workers.dev`. Kalau nama Worker diganti, alamatnya ikut berganti dan data di HP
+tidak ikut pindah: ekspor cadangan dari alamat lama, lalu impor di alamat baru.
 
 ⚠️ Pastikan yang tersambung adalah repositori **`Amerta`**. Saat Worker pertama dibuat,
 Cloudflare sempat membuat repositori salinan bernama `karyaanak` dan menyambungkan Worker ke sana,

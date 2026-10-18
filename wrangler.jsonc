@@ -1,12 +1,13 @@
 // Pengaturan Cloudflare Worker untuk aplikasi ini.
-// Alamat aplikasi: https://karyaanak.azakfan.workers.dev
+// Alamat aplikasi: https://amerta.azakfan.workers.dev
+// (Sampai Oktober 2026 bernama "karyaanak" di karyaanak.azakfan.workers.dev.)
 //
 // ⚠️ Jangan ganti "name". Data di HP terikat pada alamat di atas;
 // nama lain = alamat lain = data di HP tidak terbaca.
 //
 // Worker ini hanya menyajikan file statis dari folder app/ (tanpa kode server).
 {
-  "name": "karyaanak",
+  "name": "amerta",
   "compatibility_date": "2025-09-01",
   "assets": {
     "directory": "./app"

@@ -167,6 +167,12 @@ Dipakai kalau aplikasi dipasang sebagai Worker (alamat `….workers.dev`), bukan
 
 Jangan ganti nama Worker. Data di HP terikat pada alamat `karyaanak.azakfan.workers.dev`.
 
+⚠️ Pastikan yang tersambung adalah repositori **`Museum-Karya-Anak`**. Saat Worker pertama dibuat,
+Cloudflare sempat membuat repositori salinan bernama `karyaanak` dan menyambungkan Worker ke sana,
+sehingga perubahan di `Museum-Karya-Anak` tidak pernah terpasang. Repositori `karyaanak` itu hanya
+salinan lama dan tidak dipakai lagi. Kalau di catatan build ada baris "Pushing to destination",
+berarti Worker masih tersambung ke salinan, bukan ke repositori ini.
+
 Jangan aktifkan **Web Analytics** di Cloudflare. Aplikasi ini tidak boleh memakai
 analytics, dan aturan keamanan di `_headers` akan memblokirnya.
 

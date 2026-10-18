@@ -82,7 +82,7 @@ export async function layarBeranda() {
       <section class="sapaan">
         ${maskotKrayon()}
         <div class="gelembung">
-          <p class="tagline">Abadikan Momen Berarti Anda</p>
+          <p class="tagline">Abadikan Momen Berarti Keluarga</p>
           <p class="gelembung-teks">${(() => {
     if (karya.length) return 'Karya terbaru dijemur di bawah ini. Ketuk untuk melihat.';
     if (semua.length) return 'Ketuk tombol <strong>+</strong> di bawah untuk menyimpan karya pertama.';

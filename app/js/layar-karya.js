@@ -34,6 +34,10 @@ function layarKaryaTidakAda() {
   };
 }
 
+// Di iPhone, "audio/*" saja membuat sebagian file (misalnya .aac dari WhatsApp) berwarna abu-abu
+// dan tidak bisa dipilih. Menyebut ekstensinya satu per satu membuat file itu bisa dipilih.
+const TERIMA_AUDIO = 'audio/*,.aac,.m4a,.mp3,.wav,.ogg,.opus,.webm';
+
 function tebakTipeAudio(file) {
   if (file.type) return file.type;
   const ext = (file.name.split('.').pop() || '').toLowerCase();
@@ -147,7 +151,7 @@ async function layarFormKarya(lama, anakAwal, bagian) {
               ${bisaRekam() ? '<button type="button" class="tombol" id="rekam-suara">🎙️ Rekam suara</button>' : ''}
               <label class="tombol" for="input-suara">Impor rekaman</label>
             </div>
-            <input type="file" id="input-suara" accept="audio/*" class="tersembunyi">
+            <input type="file" id="input-suara" accept="${TERIMA_AUDIO}" class="tersembunyi">
           </div>
 
           <div class="isian">

@@ -2,6 +2,7 @@
 .claude/
 .vscode/
 node_modules/
+.wrangler/
 
 # File sampah sistem
 Thumbs.db

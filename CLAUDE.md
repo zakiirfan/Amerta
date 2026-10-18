@@ -1,7 +1,7 @@
 # Amerta (dulu Museum Karya Anak) — aturan kerja
 
 Proyek ini disimpan di GitHub (https://github.com/zakiirfan/Amerta) dan bisa diedit
-dari beberapa device. Cloudflare Worker `karyaanak` (https://karyaanak.azakfan.workers.dev) deploy dari branch `main`
+dari beberapa device. Cloudflare Worker `amerta` (https://amerta.azakfan.workers.dev) deploy dari branch `main`
 lewat `wrangler.jsonc` (menyajikan folder `app`). Jangan ganti nama Worker: data di HP terikat pada alamatnya.
 
 ## Wajib setiap sesi

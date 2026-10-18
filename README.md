@@ -99,10 +99,15 @@ Klik dua kali untuk membukanya di Chrome atau Edge, tanpa server dan tanpa inter
 node tools/buat-satu-file.js
 ```
 
-## Simpan di GitHub, deploy di Cloudflare Pages
+## Simpan di GitHub, deploy di Cloudflare
 
-Kode disimpan di GitHub. Cloudflare Pages tersambung ke GitHub dan otomatis
+Kode disimpan di GitHub. Cloudflare tersambung ke GitHub dan otomatis
 memperbarui situs setiap kali isi GitHub berubah. Gratis, dan HTTPS-nya otomatis.
+
+> **Yang dipakai sekarang:** Cloudflare **Worker** bernama `karyaanak`, alamat
+> <https://karyaanak.azakfan.workers.dev>. Pengaturannya ada di `wrangler.jsonc`
+> (menyajikan folder `app/`). Cara menyambungkannya ke GitHub ada di
+> "Langkah 2b" di bawah. Langkah 2 (Pages) hanya untuk memasang dari awal di akun lain.
 
 Yang di-upload ke GitHub hanya **kode aplikasi**. Foto, cerita, dan data anak tidak pernah
 masuk GitHub, karena semuanya tersimpan di HP. Jadi repositori publik pun aman.
@@ -145,6 +150,22 @@ Proyek Cloudflare lama yang dibuat lewat upload langsung tidak bisa disambungkan
 Kalau ingin memakai nama yang sama, hapus dulu proyek lama di Cloudflare
 (**Settings**, lalu **Delete project**), baru buat yang baru. Kalau sudah ada karya asli di alamat lama,
 **ekspor cadangan dulu** dari alamat lama, lalu impor di alamat baru.
+
+### Langkah 2b: sambungkan Worker `karyaanak` ke GitHub
+
+Dipakai kalau aplikasi dipasang sebagai Worker (alamat `….workers.dev`), bukan Pages.
+
+1. Buka <https://dash.cloudflare.com>, pilih **Workers & Pages**, lalu klik Worker **karyaanak**.
+2. Buka **Settings**, lalu bagian **Build**. Klik **Connect** di samping **Git repository**.
+3. Pilih akun GitHub dan repositori `Museum-Karya-Anak`.
+4. Isi pengaturan:
+   - **Branch**: `main`
+   - **Build command**: *kosongkan*
+   - **Deploy command**: `npx wrangler deploy`
+   - **Root directory** / **Path**: *kosongkan* (atau `/`)
+5. Klik **Connect**. Setiap perubahan di `main` akan otomatis dipasang (lihat tab **Deployments**).
+
+Jangan ganti nama Worker. Data di HP terikat pada alamat `karyaanak.azakfan.workers.dev`.
 
 Jangan aktifkan **Web Analytics** di Cloudflare. Aplikasi ini tidak boleh memakai
 analytics, dan aturan keamanan di `_headers` akan memblokirnya.

@@ -157,7 +157,7 @@ Dipakai kalau aplikasi dipasang sebagai Worker (alamat `….workers.dev`), bukan
 
 1. Buka <https://dash.cloudflare.com>, pilih **Workers & Pages**, lalu klik Worker **karyaanak**.
 2. Buka **Settings**, lalu bagian **Build**. Klik **Connect** di samping **Git repository**.
-3. Pilih akun GitHub dan repositori `Museum-Karya-Anak`.
+3. Pilih akun GitHub dan repositori `Amerta` (dulu bernama `Museum-Karya-Anak`).
 4. Isi pengaturan:
    - **Branch**: `main`
    - **Build command**: *kosongkan*
@@ -166,6 +166,12 @@ Dipakai kalau aplikasi dipasang sebagai Worker (alamat `….workers.dev`), bukan
 5. Klik **Connect**. Setiap perubahan di `main` akan otomatis dipasang (lihat tab **Deployments**).
 
 Jangan ganti nama Worker. Data di HP terikat pada alamat `karyaanak.azakfan.workers.dev`.
+
+⚠️ Pastikan yang tersambung adalah repositori **`Amerta`**. Saat Worker pertama dibuat,
+Cloudflare sempat membuat repositori salinan bernama `karyaanak` dan menyambungkan Worker ke sana,
+sehingga perubahan di `Amerta` tidak pernah terpasang. Repositori `karyaanak` itu hanya
+salinan lama dan tidak dipakai lagi. Kalau di catatan build ada baris "Pushing to destination",
+berarti Worker masih tersambung ke salinan, bukan ke repositori ini.
 
 Jangan aktifkan **Web Analytics** di Cloudflare. Aplikasi ini tidak boleh memakai
 analytics, dan aturan keamanan di `_headers` akan memblokirnya.

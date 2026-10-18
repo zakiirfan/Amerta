@@ -702,3 +702,12 @@ fieldset.isian legend { padding: 0; margin-bottom: 6px; }
 @keyframes putar { to { transform: rotate(360deg); } }
 
 [hidden] { display: none !important; }
+
+/* Tagline di Beranda */
+.tagline {
+  margin: 0 0 18px;
+  font-family: var(--huruf-judul);
+  font-size: 1.2rem;
+  font-weight: 500;
+  color: var(--warna-utama);
+}

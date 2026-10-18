@@ -74,6 +74,7 @@ export async function layarBeranda() {
     kembaliKe: null,
     nav: 'beranda',
     isi: `
+      <p class="tagline">Abadikan Momen Berharga Anda</p>
       ${kartuPengingat}
       ${semua.length ? `<h2 class="subjudul">Pilih anak</h2><div class="daftar-anak">${daftar}</div>` : kosong}
       <button type="button" class="tombol ${semua.length ? '' : 'tombol-utama'}" data-ke="#/anak/baru">+ Tambah anak</button>

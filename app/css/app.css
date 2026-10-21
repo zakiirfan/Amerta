@@ -960,3 +960,37 @@ body {
     transition: none !important;
   }
 }
+
+/* ---------- Tali jemuran panjang (lebih dari 4 karya): geser per karya ---------- */
+.jemuran-geser {
+  height: 160px;
+  margin: 0 calc(-1 * var(--jarak)) 2px;
+  padding: 0 var(--jarak);
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  scroll-padding: 0 var(--jarak);
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  /* Ujung kanan memudar: tanda masih ada karya di sebelah */
+  -webkit-mask-image: linear-gradient(to right, #000 82%, transparent);
+  mask-image: linear-gradient(to right, #000 82%, transparent);
+}
+.jemuran-geser::-webkit-scrollbar { display: none; }
+.jemuran-jalur { position: relative; height: 150px; }
+.jemuran-geser .tali { height: 80px; }
+.jemuran-geser .jemuran-item { scroll-snap-align: center; }
+.petunjuk-geser {
+  margin: 0 0 14px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--teks-redup);
+  text-align: right;
+}
+@keyframes colek {
+  0%, 70%, 100% { transform: translateX(0); }
+  80% { transform: translateX(6px); }
+  90% { transform: translateX(-2px); }
+}
+.panah-colek { display: inline-block; animation: colek 2.4s ease-in-out infinite; }

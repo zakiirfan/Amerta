@@ -66,24 +66,29 @@ export function coretanLatar() {
 /** Posisi tali (dalam piksel) pada titik t (0..1) sepanjang lebar. */
 const tinggiLengkung = (t) => 10 + 112 * t * (1 - t); // sama dengan lengkung tali: M0 10 Q50 66 100 10
 
-/** Tali jemuran berisi karya terbaru (maksimal 4). */
+/** Paling banyak karya di tali; lebih dari JEMURAN_DIAM, tali bisa digeser ke samping. */
+export const JEMURAN_MAKS = 12;
+const JEMURAN_DIAM = 4;
+// Mode geser: setiap karya punya "lekukan" tali sendiri selebar ini (px).
+const LEBAR_SEGMEN = 96;
+const MIRING = [-5, 4, -3, 5, -4, 3];
+
+/** Tali jemuran berisi karya terbaru. */
 export function htmlJemuran(karyaTerbaru) {
-  const daftar = karyaTerbaru.slice(0, 4);
+  const daftar = karyaTerbaru.slice(0, JEMURAN_MAKS);
   if (!daftar.length) return '';
   const n = daftar.length;
-  const miring = [-5, 4, -3, 5];
-  const item = daftar.map((k, i) => {
-    // Posisi dipasang lewat JavaScript di siapkanJemuran (aturan keamanan melarang style="").
-    const t = (i + 0.5) / n;
-    return `
+  const geser = n > JEMURAN_DIAM;
+  const item = daftar.map((k, i) => `
       <button type="button" class="jemuran-item" data-ke="#/karya/${k.id}"
-              data-t="${t}" data-miring="${miring[i]}"
+              data-i="${i}" data-n="${n}" data-miring="${MIRING[i % MIRING.length]}"
               aria-label="Buka karya ${esc(k.judul || 'tanpa judul')}">
         <span class="jepit" aria-hidden="true"></span>
         <img data-jemuran="${k.thumbId}" alt="">
-      </button>`;
-  }).join('');
-  return `
+      </button>`).join('');
+  // Posisi dan lebar dipasang lewat JavaScript di siapkanJemuran (aturan keamanan melarang style="").
+  if (!geser) {
+    return `
     <section class="jemuran" aria-label="Karya terbaru">
       <svg class="tali" viewBox="0 0 100 80" preserveAspectRatio="none" aria-hidden="true">
         <path d="M0 10 Q50 66 100 10" fill="none" stroke="${T}" stroke-width="2.5"
@@ -91,16 +96,45 @@ export function htmlJemuran(karyaTerbaru) {
       </svg>
       ${item}
     </section>`;
+  }
+  // Tali panjang: satu lekukan per karya, karya tergantung di titik terendah lekukan.
+  const lebar = n * LEBAR_SEGMEN;
+  let d = 'M0 12';
+  for (let i = 0; i < n; i++) {
+    const x0 = i * LEBAR_SEGMEN;
+    d += ` Q${x0 + LEBAR_SEGMEN / 2} 64 ${x0 + LEBAR_SEGMEN} 12`;
+  }
+  return `
+    <section class="jemuran jemuran-geser" aria-label="Karya terbaru, geser untuk melihat lainnya">
+      <div class="jemuran-jalur" data-lebar="${lebar}">
+        <svg class="tali" viewBox="0 0 ${lebar} 80" preserveAspectRatio="none" aria-hidden="true">
+          <path d="${d}" fill="none" stroke="${T}" stroke-width="2.5"
+                vector-effect="non-scaling-stroke" stroke-linecap="round"/>
+        </svg>
+        ${item}
+      </div>
+    </section>
+    <p class="petunjuk-geser" aria-hidden="true">Geser untuk melihat ${n} karya terbaru <span class="panah-colek">→</span></p>`;
 }
 
 /** Memuat gambar kecil di tali jemuran. */
 export function siapkanJemuran(akar) {
+  const jalur = akar.querySelector('.jemuran-jalur');
+  if (jalur) jalur.style.width = `${jalur.dataset.lebar}px`;
   akar.querySelectorAll('.jemuran-item').forEach((b) => {
-    const t = Number(b.dataset.t);
-    b.style.left = `${(t * 100).toFixed(1)}%`;
-    b.style.top = `${Math.round(tinggiLengkung(t) - 6)}px`;
+    const i = Number(b.dataset.i);
+    const n = Number(b.dataset.n);
+    if (jalur) {
+      // Mode geser: di tengah lekukan sendiri (titik terendah = 12 + (64-12)/2 = 38px).
+      b.style.left = `${i * LEBAR_SEGMEN + LEBAR_SEGMEN / 2}px`;
+      b.style.top = '32px';
+    } else {
+      const t = (i + 0.5) / n;
+      b.style.left = `${(t * 100).toFixed(1)}%`;
+      b.style.top = `${Math.round(tinggiLengkung(t) - 6)}px`;
+    }
     b.style.setProperty('--miring', `${b.dataset.miring}deg`);
-    b.style.setProperty('--tunda', `${(t * 0.9).toFixed(2)}s`);
+    b.style.setProperty('--tunda', `${Math.min(i * 0.12, 0.9).toFixed(2)}s`);
   });
   akar.querySelectorAll('img[data-jemuran]').forEach(async (img) => {
     const m = await ambilMedia(img.dataset.jemuran);

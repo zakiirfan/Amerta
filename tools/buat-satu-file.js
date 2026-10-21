@@ -83,4 +83,15 @@ ganti('</header>\n', '</header>\n  <div class="pita-satu-file">Versi satu file u
 ganti('</body>', `<script>\n${skrip}\n</script>\n</body>`);
 
 fs.writeFileSync(KELUAR, html);
+
+// 4. Samakan baris "// Versi: …" di app/sw.js dengan js/version.js, supaya isi sw.js
+//    berubah setiap versi baru dan HP (terutama iPhone) mendeteksi pembaruan.
+const versi = (baca('js/version.js').match(/APP_VERSION\s*=\s*'([^']+)'/) || [])[1];
+if (!versi) throw new Error('Nomor versi di js/version.js tidak ditemukan');
+const swPath = path.join(AKAR, 'sw.js');
+const sw = fs.readFileSync(swPath, 'utf8');
+if (!/^\/\/ Versi: .*$/m.test(sw)) throw new Error('Baris "// Versi:" di app/sw.js tidak ditemukan');
+const swBaru = sw.replace(/^\/\/ Versi: .*$/m, `// Versi: ${versi}`);
+if (swBaru !== sw) fs.writeFileSync(swPath, swBaru);
+console.log(`sw.js memakai versi ${versi}`);
 console.log(`Selesai: ${path.basename(KELUAR)} (${Math.round(fs.statSync(KELUAR).size / 1024)} KB, ${urutan.length} modul)`);

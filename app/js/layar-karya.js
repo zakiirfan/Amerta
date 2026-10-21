@@ -19,6 +19,7 @@ import {
   punyaCerita, usiaKarya, saranDari, rapikanIsian, uraiKataKunci, slug,
 } from './karya.js';
 import { simpanFile } from './simpan-file.js';
+import { rayakan } from './hiasan.js';
 import { buatDanSimpanPdf } from './pdf-karya.js';
 
 const KUNCI_ANAK_TERAKHIR = 'mka.anakTerakhir';
@@ -598,7 +599,8 @@ function siapkanFormKarya(main, { lama, semuaAnak, saran, bagian }) {
       try { localStorage.setItem(KUNCI_ANAK_TERAKHIR, anakId); } catch { /* abaikan */ }
       berubah = false;
       aturPenjaga(null);
-      kabar('Karya disimpan');
+      kabar('Karya disimpan 🎉');
+      if (!lama) rayakan();
       if (lama) kembali(`#/karya/${id}`);
       else pergi(`#/karya/${id}`, { ganti: true });
     } catch (err) {

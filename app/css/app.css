@@ -777,3 +777,222 @@ fieldset.isian legend { padding: 0; margin-bottom: 6px; }
   border-radius: 3px;
   background: var(--kuning);
 }
+
+/* =====================================================================
+   Ceria dan bergerak (versi 0.14): warna lebih hangat + animasi ringan.
+   Semua animasi hanya memakai transform/opacity (hemat baterai), dan
+   dimatikan kalau HP diatur "kurangi gerakan" (lihat bagian paling bawah).
+   ===================================================================== */
+
+/* Latar kertas gambar bertitik, judul atas bergradasi lembut */
+body {
+  background-color: var(--latar);
+  background-image: radial-gradient(#E8DDC6 1.2px, transparent 1.6px);
+  background-size: 22px 22px;
+}
+.app-bar { background: linear-gradient(100deg, #DDF3EF 0%, #FFF3D6 55%, #FFE3D9 100%); }
+
+/* Kartu anak berwarna sesuai warna avatarnya */
+.kartu-anak:has(.avatar-0) { background: #E7F6F2; }
+.kartu-anak:has(.avatar-1) { background: #FFE9E4; }
+.kartu-anak:has(.avatar-2) { background: #ECEEFA; }
+.kartu-anak:has(.avatar-3) { background: #FFF4D9; }
+.kartu-anak:has(.avatar-4) { background: #EEF6E2; }
+.kartu-anak:has(.avatar-5) { background: #FDEDF3; }
+
+/* ---------- Layar baru muncul memantul, isinya bergantian ---------- */
+@keyframes muncul {
+  from { opacity: 0; transform: translateY(14px) scale(0.98); }
+  to { opacity: 1; transform: none; }
+}
+.layar.masuk > *,
+.layar.masuk .beranda > :not(.coretan) {
+  animation: muncul 0.45s cubic-bezier(0.2, 0.9, 0.3, 1.25) both;
+}
+.layar.masuk > :nth-child(2), .layar.masuk .beranda > :nth-child(3) { animation-delay: 0.05s; }
+.layar.masuk > :nth-child(3), .layar.masuk .beranda > :nth-child(4) { animation-delay: 0.1s; }
+.layar.masuk > :nth-child(4), .layar.masuk .beranda > :nth-child(5) { animation-delay: 0.15s; }
+.layar.masuk > :nth-child(n+5), .layar.masuk .beranda > :nth-child(n+6) { animation-delay: 0.2s; }
+/* .beranda sendiri tidak ikut bergerak, supaya coretan latar tidak melompat */
+.layar.masuk > .beranda { animation: none; }
+
+/* Kartu anak dan kotak galeri "pop" bergantian */
+@keyframes pop {
+  0% { opacity: 0; transform: scale(0.85); }
+  70% { opacity: 1; transform: scale(1.04); }
+  100% { opacity: 1; transform: scale(1); }
+}
+.layar.masuk .daftar-anak > *,
+.layar.masuk .grid-karya > * { animation: pop 0.45s ease-out both; }
+.layar.masuk .daftar-anak > :nth-child(2), .layar.masuk .grid-karya > :nth-child(2) { animation-delay: 0.08s; }
+.layar.masuk .daftar-anak > :nth-child(3), .layar.masuk .grid-karya > :nth-child(3) { animation-delay: 0.16s; }
+.layar.masuk .daftar-anak > :nth-child(n+4), .layar.masuk .grid-karya > :nth-child(n+4) { animation-delay: 0.22s; }
+
+/* ---------- Tombol: kenyal saat ditekan ---------- */
+.tombol, .kartu-anak, .chip, .sel-karya, .jemuran-item {
+  transition: transform 0.15s cubic-bezier(0.3, 1.6, 0.5, 1), box-shadow 0.15s;
+}
+.tombol:active, .chip:active, .sel-karya:active { transform: translate(2px, 2px) scale(0.96); }
+.kartu-anak:active { transform: translate(2px, 2px) scale(0.98); }
+
+/* Tombol + di menu bawah bergoyang sesekali, mengajak menambah karya */
+@keyframes goyang {
+  0%, 82%, 100% { transform: rotate(0) scale(1); }
+  86% { transform: rotate(-12deg) scale(1.08); }
+  90% { transform: rotate(10deg) scale(1.08); }
+  94% { transform: rotate(-6deg) scale(1.04); }
+}
+.nav-bawah .nav-tambah svg { animation: goyang 5s ease-in-out infinite; }
+
+/* Ikon menu yang aktif melompat kecil */
+@keyframes lompat {
+  0% { transform: translateY(0); }
+  40% { transform: translateY(-6px); }
+  70% { transform: translateY(1px); }
+  100% { transform: translateY(0); }
+}
+.nav-bawah [aria-current="page"] svg { animation: lompat 0.5s ease-out; }
+
+/* ---------- Maskot krayon: bergoyang, melambai, berkedip ---------- */
+@keyframes goyang-badan {
+  0%, 100% { transform: translateY(0) rotate(0); }
+  25% { transform: translateY(-4px) rotate(-2deg); }
+  75% { transform: translateY(-2px) rotate(2deg); }
+}
+@keyframes lambai {
+  0%, 55%, 100% { transform: rotate(0); }
+  62% { transform: rotate(-22deg); }
+  70% { transform: rotate(12deg); }
+  78% { transform: rotate(-18deg); }
+  86% { transform: rotate(8deg); }
+}
+@keyframes kedip {
+  0%, 90%, 100% { transform: scaleY(1); }
+  94% { transform: scaleY(0.1); }
+}
+.maskot .maskot-badan {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: goyang-badan 2.6s ease-in-out infinite;
+}
+.maskot .lengan-lambai {
+  transform-box: fill-box;
+  transform-origin: 100% 100%;
+  animation: lambai 3.2s ease-in-out infinite;
+}
+.maskot .mata {
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+  animation: kedip 4s infinite;
+}
+
+/* Gelembung bicara muncul seperti balon */
+@keyframes balon {
+  0% { opacity: 0; transform: scale(0.6) rotate(-4deg); }
+  70% { opacity: 1; transform: scale(1.05) rotate(1deg); }
+  100% { opacity: 1; transform: none; }
+}
+.layar.masuk .gelembung { transform-origin: 0 100%; animation: balon 0.6s 0.15s cubic-bezier(0.2, 0.9, 0.3, 1.3) both; }
+
+/* ---------- Tali jemuran: karya jatuh lalu berayun ditiup angin ---------- */
+@keyframes jatuh {
+  from { translate: 0 -46px; opacity: 0; }
+  to { translate: 0 0; opacity: 1; }
+}
+@keyframes ayun {
+  0%, 100% { transform: translateX(-50%) rotate(var(--miring, 0deg)); }
+  50% { transform: translateX(-50%) rotate(calc(var(--miring, 0deg) * -0.6)); }
+}
+.jemuran-item {
+  animation:
+    jatuh 0.55s cubic-bezier(0.3, 1.4, 0.5, 1) both,
+    ayun 3.4s ease-in-out infinite;
+  animation-delay: var(--tunda, 0s), var(--tunda, 0s);
+}
+.jemuran-item:active { animation-play-state: paused; }
+
+/* ---------- Coretan latar: bintang berkelip, awan melayang ---------- */
+@keyframes kelip {
+  0%, 100% { transform: scale(1) rotate(0); opacity: 1; }
+  50% { transform: scale(1.25) rotate(12deg); opacity: 0.55; }
+}
+@keyframes melayang {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(14px); }
+}
+@keyframes berputar { to { transform: rotate(360deg); } }
+.coretan .kelip, .coretan .awan, .coretan .putar, .coretan .geser { transform-box: fill-box; transform-origin: 50% 50%; }
+.coretan .kelip { animation: kelip 2.8s ease-in-out infinite; }
+.coretan .kelip-2 { animation-delay: 0.9s; }
+.coretan .kelip-3 { animation-delay: 1.7s; }
+.coretan .awan { animation: melayang 6s ease-in-out infinite; }
+.coretan .awan-2 { animation-duration: 7.5s; animation-delay: 1s; }
+.coretan .putar { animation: berputar 14s linear infinite; }
+.coretan .geser { animation: melayang 4.5s ease-in-out infinite reverse; }
+
+/* ---------- Konfeti saat karya baru disimpan ---------- */
+@keyframes konfeti {
+  0% { transform: translateY(-20px) rotate(0); opacity: 1; }
+  100% { transform: translateY(105vh) rotate(calc(var(--putar, 1) * 540deg)); opacity: 0.9; }
+}
+.konfeti { position: fixed; inset: 0; z-index: 40; pointer-events: none; overflow: hidden; }
+.konfeti span {
+  position: absolute;
+  top: -12px;
+  width: 9px;
+  height: 14px;
+  border-radius: 2px;
+  animation: konfeti 1.8s cubic-bezier(0.25, 0.6, 0.4, 1) forwards;
+}
+.konfeti span.bulat { width: 10px; height: 10px; border-radius: 50%; }
+
+/* Pesan singkat meloncat masuk */
+@keyframes kabar-masuk {
+  from { opacity: 0; transform: translate(-50%, 16px) scale(0.9); }
+  to { opacity: 1; transform: translate(-50%, 0) scale(1); }
+}
+.kabar:not([hidden]) { animation: kabar-masuk 0.35s cubic-bezier(0.2, 0.9, 0.3, 1.4); }
+
+/* ---------- Hormati pengaturan "kurangi gerakan" di HP ---------- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* ---------- Tali jemuran panjang (lebih dari 4 karya): geser per karya ---------- */
+.jemuran-geser {
+  height: 160px;
+  margin: 0 calc(-1 * var(--jarak)) 2px;
+  padding: 0 var(--jarak);
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  scroll-padding: 0 var(--jarak);
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  /* Ujung kanan memudar: tanda masih ada karya di sebelah */
+  -webkit-mask-image: linear-gradient(to right, #000 82%, transparent);
+  mask-image: linear-gradient(to right, #000 82%, transparent);
+}
+.jemuran-geser::-webkit-scrollbar { display: none; }
+.jemuran-jalur { position: relative; height: 150px; }
+.jemuran-geser .tali { height: 80px; }
+.jemuran-geser .jemuran-item { scroll-snap-align: center; }
+.petunjuk-geser {
+  margin: 0 0 14px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--teks-redup);
+  text-align: right;
+}
+@keyframes colek {
+  0%, 70%, 100% { transform: translateX(0); }
+  80% { transform: translateX(6px); }
+  90% { transform: translateX(-2px); }
+}
+.panah-colek { display: inline-block; animation: colek 2.4s ease-in-out infinite; }
+/* Selama tali berjalan sendiri, "snap" dimatikan supaya gerakannya halus */
+.jemuran-geser.berjalan { scroll-snap-type: none; }

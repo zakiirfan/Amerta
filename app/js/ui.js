@@ -55,6 +55,10 @@ export function tampilkanLayar(layar, { onKembali }) {
   });
 
   main.innerHTML = layar.isi;
+  // Mainkan ulang animasi "muncul" untuk layar baru (lihat .layar.masuk di app.css).
+  main.classList.remove('masuk');
+  void main.offsetWidth;
+  main.classList.add('masuk');
   window.scrollTo(0, 0);
   main.focus({ preventScroll: true });
   if (layar.siapkan) layar.siapkan(main);

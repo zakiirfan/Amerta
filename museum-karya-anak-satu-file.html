@@ -1009,6 +1009,8 @@ body {
   90% { transform: translateX(-2px); }
 }
 .panah-colek { display: inline-block; animation: colek 2.4s ease-in-out infinite; }
+/* Selama tali berjalan sendiri, "snap" dimatikan supaya gerakannya halus */
+.jemuran-geser.berjalan { scroll-snap-type: none; }
 
 /* Khusus versi satu file */
 .pita-satu-file {
@@ -1097,7 +1099,7 @@ self.MKA_SATU_FILE = true;
 // Naikkan angka ini SETIAP kali ada perubahan file sebelum deploy,
 // supaya HP pengguna mengunduh versi baru.
 // File ini dipakai oleh halaman (window) dan service worker (self).
-self.APP_VERSION = '0.14.2';
+self.APP_VERSION = '0.14.3';
 
 const __modul = {};
 // ===== js/pwa.js =====
@@ -3194,13 +3196,18 @@ function htmlJemuran(semuaKarya) {
   if (!daftar.length) return '';
   const n = daftar.length;
   const geser = n > JEMURAN_DIAM;
-  const item = daftar.map((k, i) => `
+  // Mode geser: daftar dipasang dua kali supaya tali bisa berjalan terus tanpa putus.
+  const tampil = geser ? [...daftar, ...daftar] : daftar;
+  const item = tampil.map((k, i) => {
+    const salinan = i >= n;
+    return `
       <button type="button" class="jemuran-item" data-ke="#/karya/${k.id}"
               data-i="${i}" data-n="${n}" data-miring="${MIRING[i % MIRING.length]}"
-              aria-label="Buka karya ${esc(k.judul || 'tanpa judul')}">
+              ${salinan ? 'aria-hidden="true" tabindex="-1"' : `aria-label="Buka karya ${esc(k.judul || 'tanpa judul')}"`}>
         <span class="jepit" aria-hidden="true"></span>
         <img data-jemuran="${k.thumbId}" alt="">
-      </button>`).join('');
+      </button>`;
+  }).join('');
   // Posisi dan lebar dipasang lewat JavaScript di siapkanJemuran (aturan keamanan melarang style="").
   if (!geser) {
     return `
@@ -3213,14 +3220,14 @@ function htmlJemuran(semuaKarya) {
     </section>`;
   }
   // Tali panjang: satu lekukan per karya, karya tergantung di titik terendah lekukan.
-  const lebar = n * LEBAR_SEGMEN;
+  const lebar = 2 * n * LEBAR_SEGMEN;
   let d = 'M0 12';
-  for (let i = 0; i < n; i++) {
+  for (let i = 0; i < 2 * n; i++) {
     const x0 = i * LEBAR_SEGMEN;
     d += ` Q${x0 + LEBAR_SEGMEN / 2} 64 ${x0 + LEBAR_SEGMEN} 12`;
   }
   return `
-    <section class="jemuran jemuran-geser" aria-label="Karya pilihan, bergeser sendiri dan bisa digeser">
+    <section class="jemuran jemuran-geser" aria-label="Karya pilihan, berjalan sendiri dan bisa digeser">
       <div class="jemuran-jalur" data-lebar="${lebar}">
         <svg class="tali" viewBox="0 0 ${lebar} 80" preserveAspectRatio="none" aria-hidden="true">
           <path d="${d}" fill="none" stroke="${T}" stroke-width="2.5"
@@ -3229,7 +3236,7 @@ function htmlJemuran(semuaKarya) {
         ${item}
       </div>
     </section>
-    <p class="petunjuk-geser" aria-hidden="true">Bergeser sendiri, atau geser dengan jari <span class="panah-colek">→</span></p>`;
+    <p class="petunjuk-geser" aria-hidden="true">Berjalan sendiri. Sentuh untuk berhenti, geser dengan jari <span class="panah-colek">→</span></p>`;
 }
 
 /** Memuat gambar kecil di tali jemuran. */
@@ -3249,7 +3256,7 @@ function siapkanJemuran(akar) {
       b.style.top = `${Math.round(tinggiLengkung(t) - 6)}px`;
     }
     b.style.setProperty('--miring', `${b.dataset.miring}deg`);
-    b.style.setProperty('--tunda', `${Math.min(i * 0.12, 0.9).toFixed(2)}s`);
+    b.style.setProperty('--tunda', `${Math.min((i % n) * 0.12, 0.9).toFixed(2)}s`);
   });
   akar.querySelectorAll('img[data-jemuran]').forEach(async (img) => {
     const m = await ambilMedia(img.dataset.jemuran);
@@ -3258,41 +3265,73 @@ function siapkanJemuran(akar) {
   return jalur ? geserOtomatis(akar.querySelector('.jemuran-geser')) : () => {};
 }
 
-const JEDA_GESER = 3000;      // pindah ke karya berikutnya tiap 3 detik
-const JEDA_SETELAH_SENTUH = 5000; // diam dulu 5 detik setelah disentuh jari
+const KECEPATAN = 32;             // piksel per detik: tali berjalan pelan dan terus
+const JEDA_SETELAH_SENTUH = 2500;  // diam dulu 2,5 detik setelah jari diangkat
 
 /**
- * Tali jemuran bergeser sendiri satu karya demi satu karya, lalu kembali ke awal.
- * Berhenti sementara saat disentuh/digeser jari, dan saat aplikasi tidak terlihat.
- * Mengembalikan fungsi pembersih (dipanggil saat pindah layar).
+ * Tali jemuran berjalan sendiri terus-menerus (seperti pita berjalan) dan berulang
+ * tanpa putus (daftar karya dipasang dua kali). Tetap bisa digeser dengan jari:
+ * berhenti saat disentuh, lanjut lagi sesudahnya. Berhenti juga saat aplikasi tidak
+ * terlihat dan saat pindah layar. Mengembalikan fungsi pembersih.
  */
 function geserOtomatis(wadah) {
   if (!wadah || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return () => {};
-  let jamGeser = null;
+  const jalur = wadah.querySelector('.jemuran-jalur');
+  const setengah = () => jalur.scrollWidth / 2;
+  let posisi = wadah.scrollLeft;
+  let jalan = false;
+  let bingkai = null;
+  let waktuLalu = 0;
   let jamLanjut = null;
 
-  const langkah = () => {
-    if (document.hidden) return;
-    const ujung = wadah.scrollWidth - wadah.clientWidth;
-    if (wadah.scrollLeft >= ujung - 4) wadah.scrollTo({ left: 0, behavior: 'smooth' });
-    else wadah.scrollBy({ left: LEBAR_SEGMEN, behavior: 'smooth' });
+  const putar = (waktu) => {
+    if (!jalan) return;
+    const dt = waktuLalu ? Math.min(waktu - waktuLalu, 100) : 0;
+    waktuLalu = waktu;
+    if (!document.hidden) {
+      posisi += (KECEPATAN * dt) / 1000;
+      if (posisi >= setengah()) posisi -= setengah(); // kembali ke salinan pertama, tampak tanpa putus
+      wadah.scrollLeft = posisi;
+    }
+    bingkai = requestAnimationFrame(putar);
   };
-  const mulai = () => { clearInterval(jamGeser); jamGeser = setInterval(langkah, JEDA_GESER); };
-  const berhenti = () => { clearInterval(jamGeser); jamGeser = null; };
+  const mulai = () => {
+    if (jalan) return;
+    posisi = wadah.scrollLeft % setengah();
+    wadah.scrollLeft = posisi;
+    wadah.classList.add('berjalan');   // matikan "snap" selama berjalan sendiri
+    jalan = true;
+    waktuLalu = 0;
+    bingkai = requestAnimationFrame(putar);
+  };
+  const berhenti = () => {
+    jalan = false;
+    cancelAnimationFrame(bingkai);
+    wadah.classList.remove('berjalan');
+  };
   const disentuh = () => {
     berhenti();
+    clearTimeout(jamLanjut);
+  };
+  const dilepas = () => {
     clearTimeout(jamLanjut);
     jamLanjut = setTimeout(mulai, JEDA_SETELAH_SENTUH);
   };
 
-  const jenis = ['pointerdown', 'touchstart', 'wheel'];
-  jenis.forEach((j) => wadah.addEventListener(j, disentuh, { passive: true }));
+  const tekan = ['pointerdown', 'touchstart'];
+  const lepas = ['pointerup', 'pointercancel', 'touchend', 'touchcancel'];
+  const roda = () => { disentuh(); dilepas(); };
+  tekan.forEach((j) => wadah.addEventListener(j, disentuh, { passive: true }));
+  lepas.forEach((j) => wadah.addEventListener(j, dilepas, { passive: true }));
+  wadah.addEventListener('wheel', roda, { passive: true });
   mulai();
 
   return () => {
     berhenti();
     clearTimeout(jamLanjut);
-    jenis.forEach((j) => wadah.removeEventListener(j, disentuh));
+    tekan.forEach((j) => wadah.removeEventListener(j, disentuh));
+    lepas.forEach((j) => wadah.removeEventListener(j, dilepas));
+    wadah.removeEventListener('wheel', roda);
   };
 }
 
@@ -3410,7 +3449,7 @@ async function layarBeranda() {
         <div class="gelembung">
           <p class="tagline">Abadikan Momen Berarti Keluarga</p>
           <p class="gelembung-teks">${(() => {
-    if (karya.length > 4) return 'Karya-karya dijemur di bawah ini. Tunggu atau geser, lalu ketuk untuk melihat.';
+    if (karya.length > 4) return 'Karya-karya dijemur di bawah ini. Sentuh untuk berhenti, lalu ketuk untuk melihat.';
     if (karya.length) return 'Karya-karya dijemur di bawah ini. Ketuk untuk melihat.';
     if (semua.length) return 'Ketuk tombol <strong>+</strong> di bawah untuk menyimpan karya pertama.';
     return 'Halo! Mulai dengan menambahkan anak dulu, ya.';

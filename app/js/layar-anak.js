@@ -84,7 +84,7 @@ export async function layarBeranda() {
         <div class="gelembung">
           <p class="tagline">Abadikan Momen Berarti Keluarga</p>
           <p class="gelembung-teks">${(() => {
-    if (karya.length > 4) return 'Karya-karya dijemur di bawah ini. Tunggu atau geser, lalu ketuk untuk melihat.';
+    if (karya.length > 4) return 'Karya-karya dijemur di bawah ini. Sentuh untuk berhenti, lalu ketuk untuk melihat.';
     if (karya.length) return 'Karya-karya dijemur di bawah ini. Ketuk untuk melihat.';
     if (semua.length) return 'Ketuk tombol <strong>+</strong> di bawah untuk menyimpan karya pertama.';
     return 'Halo! Mulai dengan menambahkan anak dulu, ya.';

@@ -994,3 +994,5 @@ body {
   90% { transform: translateX(-2px); }
 }
 .panah-colek { display: inline-block; animation: colek 2.4s ease-in-out infinite; }
+/* Selama tali berjalan sendiri, "snap" dimatikan supaya gerakannya halus */
+.jemuran-geser.berjalan { scroll-snap-type: none; }

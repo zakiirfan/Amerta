@@ -73,9 +73,19 @@ const JEMURAN_DIAM = 4;
 const LEBAR_SEGMEN = 96;
 const MIRING = [-5, 4, -3, 5, -4, 3];
 
-/** Tali jemuran berisi karya terbaru. */
-export function htmlJemuran(karyaTerbaru) {
-  const daftar = karyaTerbaru.slice(0, JEMURAN_MAKS);
+/** Urutan acak (Fisher–Yates), tanpa mengubah daftar aslinya. */
+function acak(daftar) {
+  const hasil = [...daftar];
+  for (let i = hasil.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [hasil[i], hasil[j]] = [hasil[j], hasil[i]];
+  }
+  return hasil;
+}
+
+/** Tali jemuran berisi karya pilihan acak (berganti setiap Beranda dibuka). */
+export function htmlJemuran(semuaKarya) {
+  const daftar = acak(semuaKarya).slice(0, JEMURAN_MAKS);
   if (!daftar.length) return '';
   const n = daftar.length;
   const geser = n > JEMURAN_DIAM;
@@ -89,7 +99,7 @@ export function htmlJemuran(karyaTerbaru) {
   // Posisi dan lebar dipasang lewat JavaScript di siapkanJemuran (aturan keamanan melarang style="").
   if (!geser) {
     return `
-    <section class="jemuran" aria-label="Karya terbaru">
+    <section class="jemuran" aria-label="Karya pilihan">
       <svg class="tali" viewBox="0 0 100 80" preserveAspectRatio="none" aria-hidden="true">
         <path d="M0 10 Q50 66 100 10" fill="none" stroke="${T}" stroke-width="2.5"
               vector-effect="non-scaling-stroke" stroke-linecap="round"/>
@@ -105,7 +115,7 @@ export function htmlJemuran(karyaTerbaru) {
     d += ` Q${x0 + LEBAR_SEGMEN / 2} 64 ${x0 + LEBAR_SEGMEN} 12`;
   }
   return `
-    <section class="jemuran jemuran-geser" aria-label="Karya terbaru, geser untuk melihat lainnya">
+    <section class="jemuran jemuran-geser" aria-label="Karya pilihan, bergeser sendiri dan bisa digeser">
       <div class="jemuran-jalur" data-lebar="${lebar}">
         <svg class="tali" viewBox="0 0 ${lebar} 80" preserveAspectRatio="none" aria-hidden="true">
           <path d="${d}" fill="none" stroke="${T}" stroke-width="2.5"
@@ -114,7 +124,7 @@ export function htmlJemuran(karyaTerbaru) {
         ${item}
       </div>
     </section>
-    <p class="petunjuk-geser" aria-hidden="true">Geser untuk melihat ${n} karya terbaru <span class="panah-colek">→</span></p>`;
+    <p class="petunjuk-geser" aria-hidden="true">Bergeser sendiri, atau geser dengan jari <span class="panah-colek">→</span></p>`;
 }
 
 /** Memuat gambar kecil di tali jemuran. */
@@ -140,6 +150,45 @@ export function siapkanJemuran(akar) {
     const m = await ambilMedia(img.dataset.jemuran);
     if (m && img.isConnected) img.src = urlBlob(m.blob);
   });
+  return jalur ? geserOtomatis(akar.querySelector('.jemuran-geser')) : () => {};
+}
+
+const JEDA_GESER = 3000;      // pindah ke karya berikutnya tiap 3 detik
+const JEDA_SETELAH_SENTUH = 5000; // diam dulu 5 detik setelah disentuh jari
+
+/**
+ * Tali jemuran bergeser sendiri satu karya demi satu karya, lalu kembali ke awal.
+ * Berhenti sementara saat disentuh/digeser jari, dan saat aplikasi tidak terlihat.
+ * Mengembalikan fungsi pembersih (dipanggil saat pindah layar).
+ */
+function geserOtomatis(wadah) {
+  if (!wadah || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return () => {};
+  let jamGeser = null;
+  let jamLanjut = null;
+
+  const langkah = () => {
+    if (document.hidden) return;
+    const ujung = wadah.scrollWidth - wadah.clientWidth;
+    if (wadah.scrollLeft >= ujung - 4) wadah.scrollTo({ left: 0, behavior: 'smooth' });
+    else wadah.scrollBy({ left: LEBAR_SEGMEN, behavior: 'smooth' });
+  };
+  const mulai = () => { clearInterval(jamGeser); jamGeser = setInterval(langkah, JEDA_GESER); };
+  const berhenti = () => { clearInterval(jamGeser); jamGeser = null; };
+  const disentuh = () => {
+    berhenti();
+    clearTimeout(jamLanjut);
+    jamLanjut = setTimeout(mulai, JEDA_SETELAH_SENTUH);
+  };
+
+  const jenis = ['pointerdown', 'touchstart', 'wheel'];
+  jenis.forEach((j) => wadah.addEventListener(j, disentuh, { passive: true }));
+  mulai();
+
+  return () => {
+    berhenti();
+    clearTimeout(jamLanjut);
+    jenis.forEach((j) => wadah.removeEventListener(j, disentuh));
+  };
 }
 
 const WARNA_KONFETI = ['#EC6F5A', '#FF8C52', '#F6C760', '#8AD6D1', '#359FA0', '#8E9BD6', '#F3B6CF'];

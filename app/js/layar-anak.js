@@ -84,14 +84,14 @@ export async function layarBeranda() {
         <div class="gelembung">
           <p class="tagline">Abadikan Momen Berarti Keluarga</p>
           <p class="gelembung-teks">${(() => {
-    if (karya.length > 4) return 'Karya terbaru dijemur di bawah ini. Geser ke samping, lalu ketuk untuk melihat.';
-    if (karya.length) return 'Karya terbaru dijemur di bawah ini. Ketuk untuk melihat.';
+    if (karya.length > 4) return 'Karya-karya dijemur di bawah ini. Tunggu atau geser, lalu ketuk untuk melihat.';
+    if (karya.length) return 'Karya-karya dijemur di bawah ini. Ketuk untuk melihat.';
     if (semua.length) return 'Ketuk tombol <strong>+</strong> di bawah untuk menyimpan karya pertama.';
     return 'Halo! Mulai dengan menambahkan anak dulu, ya.';
   })()}</p>
         </div>
       </section>
-      ${htmlJemuran(urutkanTerbaru(karya))}
+      ${htmlJemuran(karya)}
       ${kartuPengingat}
       ${semua.length ? `<h2 class="subjudul">Pilih anak</h2><div class="daftar-anak">${daftar}</div>` : kosong}
       <button type="button" class="tombol ${semua.length ? '' : 'tombol-utama'}" data-ke="#/anak/baru">+ Tambah anak</button>
@@ -101,7 +101,7 @@ export async function layarBeranda() {
       </footer>
       </div>`,
     siapkan(main) {
-      siapkanJemuran(main);
+      this.bersihkan = siapkanJemuran(main);
       const t = main.querySelector('#buka-panduan');
       if (t) t.addEventListener('click', bukaPanduan);
       const ekspor = main.querySelector('#ekspor-sekarang');

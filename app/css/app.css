@@ -996,3 +996,256 @@ body {
 .panah-colek { display: inline-block; animation: colek 2.4s ease-in-out infinite; }
 /* Selama tali berjalan sendiri, "snap" dimatikan supaya gerakannya halus */
 .jemuran-geser.berjalan { scroll-snap-type: none; }
+
+/* =====================================================================
+   Galeri anak yang "hidup" (versi 0.15)
+   ===================================================================== */
+.filter-waktu { margin: 14px 0 2px; }
+.filter-waktu:empty { display: none; }
+
+.galeri-hidup .grid-karya {
+  position: relative;
+  gap: 12px;
+  perspective: 900px;
+  padding: 4px 2px 6px;
+}
+/* Polaroid miring sedikit, bisa dimiringkan 3D oleh jari */
+.galeri-hidup .sel-karya {
+  border-radius: 10px;
+  box-shadow: 3px 4px 0 var(--tinta);
+  transform: rotate(var(--miring, 0deg)) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  transition: transform 0.25s cubic-bezier(0.3, 1.5, 0.5, 1), box-shadow 0.2s;
+  will-change: transform;
+}
+.galeri-hidup .sel-karya.ditekan {
+  transform: rotate(0deg) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) scale(1.06);
+  box-shadow: 6px 8px 0 var(--tinta);
+  z-index: 2;
+}
+.galeri-hidup .sel-karya:active { transform: rotate(0deg) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) scale(1.06); }
+@media (hover: hover) {
+  .galeri-hidup .sel-karya:hover {
+    transform: rotate(0deg) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) scale(1.05);
+    z-index: 2;
+  }
+}
+/* Kilau yang mengikuti jari */
+.galeri-hidup .sel-karya::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at var(--kx, 50%) var(--ky, 50%), rgba(255, 255, 255, 0.55), transparent 55%);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.galeri-hidup .sel-karya.ditekan::after { opacity: 1; }
+@media (hover: hover) { .galeri-hidup .sel-karya:hover::after { opacity: 1; } }
+.galeri-hidup .tanda-cerita, .galeri-hidup .centang { z-index: 1; }
+
+/* Foto dilempar masuk seperti kartu */
+@keyframes lempar {
+  from { opacity: 0; transform: translateY(46px) rotate(calc(var(--miring, 0deg) * 7)) scale(0.55); }
+  to { opacity: 1; transform: rotate(var(--miring, 0deg)); }
+}
+.layar.masuk .galeri-hidup .grid-karya > .sel-karya,
+.galeri-hidup.ganti .grid-karya > .sel-karya {
+  animation: lempar 0.6s cubic-bezier(0.2, 0.9, 0.3, 1.25) backwards;
+  animation-delay: var(--tunda, 0s);
+}
+/* Saat filter diganti: hanya memudar (tanpa transform, supaya bar PDF tetap menempel) */
+@keyframes pudar-masuk { from { opacity: 0.2; } to { opacity: 1; } }
+.galeri-hidup.ganti { animation: pudar-masuk 0.3s ease-out; }
+
+/* Ken Burns: foto bergerak pelan seperti film dokumenter */
+@keyframes kb-0 { from { transform: scale(1.04) translate(0, 0); } to { transform: scale(1.2) translate(-5%, -4%); } }
+@keyframes kb-1 { from { transform: scale(1.18) translate(-4%, 3%); } to { transform: scale(1.04) translate(3%, -2%); } }
+@keyframes kb-2 { from { transform: scale(1.05) translate(4%, 0); } to { transform: scale(1.2) translate(-3%, 4%); } }
+@keyframes kb-3 { from { transform: scale(1.2) translate(3%, 3%); } to { transform: scale(1.06) translate(-2%, -3%); } }
+.galeri-hidup .sel-karya img { transform-origin: 50% 50%; }
+.galeri-hidup .sel-karya.tampak.kb-0 img { animation: kb-0 9s ease-in-out infinite alternate; }
+.galeri-hidup .sel-karya.tampak.kb-1 img { animation: kb-1 10s ease-in-out infinite alternate; }
+.galeri-hidup .sel-karya.tampak.kb-2 img { animation: kb-2 11s ease-in-out infinite alternate; }
+.galeri-hidup .sel-karya.tampak.kb-3 img { animation: kb-3 9.5s ease-in-out infinite alternate; }
+.galeri-hidup .mode-pilih .sel-karya img { animation-play-state: paused; }
+
+/* Diketuk: memantul sebelum terbuka */
+@keyframes boing {
+  0% { transform: scale(1); }
+  35% { transform: scale(1.14) rotate(-3deg); }
+  65% { transform: scale(0.94) rotate(2deg); }
+  100% { transform: scale(1.04); }
+}
+.layar .galeri-hidup .grid-karya > .sel-karya.diketuk { animation: boing 0.32s ease-out both; z-index: 3; }
+
+/* Percikan bintang di titik ketukan */
+.percikan { position: fixed; z-index: 45; width: 0; height: 0; pointer-events: none; }
+.percikan span {
+  position: absolute;
+  left: -7px;
+  top: -9px;
+  font-size: 15px;
+  line-height: 1;
+  animation: percik 0.7s cubic-bezier(0.2, 0.8, 0.3, 1) forwards;
+}
+@keyframes percik {
+  0% { transform: translate(0, 0) scale(0.4); opacity: 1; }
+  100% { transform: translate(var(--dx), var(--dy)) scale(1.1) rotate(160deg); opacity: 0; }
+}
+
+/* Hati kecil yang melayang dari foto */
+.hati-melayang {
+  position: absolute;
+  z-index: 4;
+  font-size: 20px;
+  line-height: 1;
+  pointer-events: none;
+  text-shadow: 0 0 2px #fff, 0 0 4px #fff;
+  animation: melayang-naik 2.2s ease-out forwards;
+}
+@keyframes melayang-naik {
+  0% { transform: translate(-50%, 0) scale(0.3); opacity: 0; }
+  15% { transform: translate(-50%, -8px) scale(1.15); opacity: 1; }
+  100% { transform: translate(calc(-50% + 14px), -70px) scale(0.9) rotate(12deg); opacity: 0; }
+}
+
+/* =====================================================================
+   Halaman anak (versi 0.16): Film Kenangan, filter rentang tanggal, mosaik
+   ===================================================================== */
+
+/* ---------- Film Kenangan ---------- */
+.film {
+  position: relative;
+  margin: 14px 0 6px;
+  border: var(--garis-tangan);
+  border-radius: 20px;
+  overflow: hidden;
+  background: #1E2A44;
+  box-shadow: var(--bayang);
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.film-layar { position: relative; aspect-ratio: 1 / 1; overflow: hidden; cursor: pointer; }
+/* Bayangan gelap tipis di atas supaya garis progres tetap terlihat */
+.film-layar::before {
+  content: "";
+  position: absolute;
+  z-index: 2;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 70px;
+  pointer-events: none;
+  background: linear-gradient(to bottom, rgba(20, 28, 46, 0.55), rgba(20, 28, 46, 0));
+}
+.film-slide {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  opacity: 0;
+  transition: opacity 0.9s ease;
+}
+.film-slide.aktif { opacity: 1; z-index: 1; }
+.film-slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transform-origin: 50% 50%;
+}
+.film-slide img:not([src]) { visibility: hidden; }
+@keyframes film-0 { from { transform: scale(1.02) translate(0, 0); } to { transform: scale(1.22) translate(-4%, -5%); } }
+@keyframes film-1 { from { transform: scale(1.22) translate(4%, 3%); } to { transform: scale(1.04) translate(-2%, 0); } }
+@keyframes film-2 { from { transform: scale(1.04) translate(-4%, 2%); } to { transform: scale(1.24) translate(3%, -4%); } }
+@keyframes film-3 { from { transform: scale(1.2) translate(0, -4%); } to { transform: scale(1.03) translate(0, 3%); } }
+.film-slide.main.kb-film-0 img { animation: film-0 6s ease-out forwards; }
+.film-slide.main.kb-film-1 img { animation: film-1 6s ease-out forwards; }
+.film-slide.main.kb-film-2 img { animation: film-2 6s ease-out forwards; }
+.film-slide.main.kb-film-3 img { animation: film-3 6s ease-out forwards; }
+.film.dijeda .film-slide img { animation-play-state: paused; }
+
+/* Keterangan di bagian bawah, muncul meluncur */
+.film-slide figcaption {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 46px 16px 14px;
+  background: linear-gradient(to top, rgba(20, 28, 46, 0.85), rgba(20, 28, 46, 0));
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.film-slide figcaption strong { font-family: var(--huruf-judul); font-weight: 600; font-size: 1.35rem; line-height: 1.2; }
+.film-slide figcaption span { font-size: 0.95rem; opacity: 0.9; }
+@keyframes keterangan-masuk { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+.film-slide.main figcaption { animation: keterangan-masuk 0.7s 0.35s cubic-bezier(0.2, 0.9, 0.3, 1.2) both; }
+
+/* Garis progres seperti "Story" */
+.film-bar {
+  position: absolute;
+  z-index: 3;
+  top: 10px;
+  left: 12px;
+  right: 12px;
+  display: flex;
+  gap: 4px;
+}
+.film-bar i { flex: 1; height: 4px; border-radius: 2px; background: rgba(255, 255, 255, 0.35); overflow: hidden; }
+.film-bar b { display: block; height: 100%; width: 100%; background: #fff; transform: scaleX(0); transform-origin: 0 50%; }
+.film-bar i.selesai b { transform: scaleX(1); }
+@keyframes isi-bar { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+.film-bar i.jalan b { animation: isi-bar 4.2s linear forwards; }
+.film.dijeda .film-bar i.jalan b { animation-play-state: paused; }
+
+.film-judul {
+  position: absolute;
+  z-index: 3;
+  top: 22px;
+  left: 12px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--tinta);
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+.film-petunjuk {
+  margin: 0;
+  padding: 8px 12px;
+  background: var(--kartu);
+  border-top: var(--garis-tangan);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--teks-redup);
+  text-align: center;
+}
+
+/* ---------- Filter rentang tanggal ---------- */
+.rentang-waktu { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 6px 0 4px; }
+.isian-tanggal { display: flex; flex-direction: column; gap: 4px; font-size: 0.85rem; font-weight: 700; color: var(--teks-redup); }
+.isian-tanggal input {
+  width: 100%;
+  min-height: 48px;
+  padding: 0 10px;
+  border: var(--garis-tangan);
+  border-radius: var(--radius-tangan);
+  background: var(--kartu);
+  color: var(--teks);
+  font: inherit;
+  font-size: 1rem;
+}
+.isian-tanggal input:focus { outline: none; box-shadow: 0 0 0 4px var(--mint); }
+.filter-waktu .tombol-teks { padding-left: 0; }
+.filter-waktu .bantuan { margin: 4px 0 0; }
+
+/* ---------- Galeri mosaik: sebagian foto lebih besar ---------- */
+.galeri-hidup .grid-karya { grid-auto-flow: dense; }
+.galeri-hidup .grid-karya > .sel-karya:nth-child(6n + 1),
+.galeri-hidup .grid-karya > .sel-karya:nth-child(6n + 5) {
+  grid-column: span 2;
+  grid-row: span 2;
+}
+.galeri-hidup .grid-karya > .sel-karya:nth-child(6n + 5) { grid-column: 2 / span 2; }

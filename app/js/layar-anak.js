@@ -13,7 +13,9 @@ import { modeSatuFile, sudahTerpasang } from './pwa.js';
 import { bukaPanduan } from './panduan-pasang.js';
 import { punyaCerita, urutkanTerbaru } from './karya.js';
 import { htmlGaleri, siapkanGaleri } from './galeri.js';
-import { htmlFilterWaktu, saringWaktu, hidupkanGaleri } from './galeri-hidup.js';
+import {
+  htmlRentangWaktu, saringRentang, hidupkanGaleri, htmlFilmKenangan, putarFilm,
+} from './galeri-hidup.js';
 import { pesanPengingatEkspor, tundaPengingat, jalankanEkspor } from './cadangan.js';
 import {
   maskotKrayon, coretanLatar, htmlJemuran, siapkanJemuran,
@@ -146,31 +148,46 @@ export async function layarAnak(id) {
       <button type="button" class="tombol tombol-utama" data-ke="#/karya/baru?anak=${a.id}">+ Tambah karya untuk ${esc(a.nama)}</button>
       ${daftar.length ? `
         ${tanpaCerita ? `<p class="bantuan catatan-cerita">${tanpaCerita} karya belum punya cerita (bertanda <span class="tanda-cerita-contoh">Belum ada cerita</span>). Ketuk karyanya untuk melengkapi.</p>` : ''}
-        <div class="filter-waktu" id="filter-waktu">${htmlFilterWaktu(daftar)}</div>
+        ${htmlFilmKenangan(daftar, a)}
+        <div class="filter-waktu" id="filter-waktu">${htmlRentangWaktu(daftar)}</div>
         <div class="galeri-hidup" id="wadah-galeri">${htmlGaleri(daftar)}</div>` : `
         <section class="kartu kosong"><p>Belum ada karya milik ${esc(a.nama)}.</p></section>`}
       <button type="button" class="tombol" data-ke="#/anak/${a.id}/ubah">Ubah data anak</button>`,
     siapkan(main) {
       const wadah = main.querySelector('#wadah-galeri');
       if (!wadah) return;
-      const keadaan = { tahun: '', bulan: '' };
+      const bersihFilm = putarFilm(main, (idKarya) => pergi(`#/karya/${idKarya}`));
       let bersihGaleri = siapkanGaleri(main, daftar, { hidup: true });
       let bersihHidup = hidupkanGaleri(wadah);
-      const filter = main.querySelector('#filter-waktu');
-      filter.addEventListener('click', (e) => {
-        const c = e.target.closest('.chip');
-        if (!c) return;
-        if ('tahun' in c.dataset) { keadaan.tahun = c.dataset.tahun; keadaan.bulan = ''; }
-        if ('bulan' in c.dataset) keadaan.bulan = c.dataset.bulan;
-        filter.innerHTML = htmlFilterWaktu(daftar, keadaan);
-        const terpilih = saringWaktu(daftar, keadaan);
+      const dari = main.querySelector('#tanggal-dari');
+      const sampai = main.querySelector('#tanggal-sampai');
+      const keterangan = main.querySelector('#keterangan-rentang');
+      const tombolHapus = main.querySelector('#hapus-rentang');
+      const terapkan = () => {
+        const rentang = { dari: dari.value, sampai: sampai.value };
+        const terpilih = saringRentang(daftar, rentang);
+        const aktif = !!(rentang.dari || rentang.sampai);
+        tombolHapus.hidden = !aktif;
+        if (aktif) {
+          const teks = [rentang.dari && `dari ${tanggalPanjang(rentang.dari)}`, rentang.sampai && `sampai ${tanggalPanjang(rentang.sampai)}`]
+            .filter(Boolean).join(' ');
+          keterangan.textContent = `${terpilih.length} karya ${teks}.`;
+        } else {
+          keterangan.textContent = `Semua karya (${daftar.length}).`;
+        }
         bersihGaleri(); bersihHidup();
-        wadah.innerHTML = htmlGaleri(terpilih);
+        wadah.innerHTML = terpilih.length ? htmlGaleri(terpilih)
+          : '<section class="kartu kosong"><p>Tidak ada karya di rentang waktu ini.</p></section>';
         wadah.classList.remove('ganti'); void wadah.offsetWidth; wadah.classList.add('ganti');
         bersihGaleri = siapkanGaleri(main, terpilih, { hidup: true });
         bersihHidup = hidupkanGaleri(wadah);
-      });
-      this.bersihkan = () => { bersihGaleri(); bersihHidup(); };
+      };
+      if (dari && sampai) {
+        dari.addEventListener('change', terapkan);
+        sampai.addEventListener('change', terapkan);
+        tombolHapus.addEventListener('click', () => { dari.value = ''; sampai.value = ''; terapkan(); });
+      }
+      this.bersihkan = () => { bersihFilm(); bersihGaleri(); bersihHidup(); };
     },
   };
 }

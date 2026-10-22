@@ -3,61 +3,48 @@
 // Ditambah filter waktu (tahun lalu bulan) untuk halaman anak.
 // Semua gerakan dimatikan kalau HP memakai "kurangi gerakan".
 
-import { esc } from './ui.js';
+import { esc, urlBlob } from './ui.js';
+import { ambilMedia } from './db.js';
+import { usiaKarya } from './karya.js';
+import { tanggalPanjang } from './usia.js';
 
 const geraknyaDikurangi = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-const NAMA_BULAN = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
 
 // ---------------------------------------------------------------------
-// Filter waktu
+// Filter waktu: rentang tanggal yang diisi sendiri
 // ---------------------------------------------------------------------
 
-/** Saring daftar karya menurut tahun ('2025') dan bulan ('07'); kosong = semua. */
-export function saringWaktu(daftar, { tahun = '', bulan = '' } = {}) {
+/** Saring karya menurut rentang tanggal 'YYYY-MM-DD' (dari/sampai boleh kosong). */
+export function saringRentang(daftar, { dari = '', sampai = '' } = {}) {
+  if (dari && sampai && dari > sampai) [dari, sampai] = [sampai, dari];
   return daftar.filter((k) => {
     const t = k.tanggal || '';
-    if (tahun && t.slice(0, 4) !== tahun) return false;
-    if (bulan && t.slice(5, 7) !== bulan) return false;
+    if (dari && t < dari) return false;
+    if (sampai && t > sampai) return false;
     return true;
   });
 }
 
-function hitung(daftar, ambil) {
-  const peta = new Map();
-  daftar.forEach((k) => {
-    const v = ambil(k.tanggal || '');
-    if (v) peta.set(v, (peta.get(v) || 0) + 1);
-  });
-  return [...peta.entries()].sort((a, b) => b[0].localeCompare(a[0]));
-}
-
-/** Tombol filter tahun, dan bulan kalau satu tahun dipilih. Kosong kalau semua karya di bulan yang sama. */
-export function htmlFilterWaktu(daftar, { tahun = '', bulan = '' } = {}) {
-  const daftarTahun = hitung(daftar, (t) => t.slice(0, 4));
-  const semuaBulan = hitung(daftar, (t) => t.slice(0, 7));
-  if (semuaBulan.length < 2) return '';
-  const chip = (label, data, aktif) => `
-    <button type="button" class="chip" ${data} aria-pressed="${aktif}">${label}</button>`;
-  const barisTahun = [
-    chip(`Semua · ${daftar.length}`, 'data-tahun=""', !tahun),
-    ...daftarTahun.map(([t, n]) => chip(`${esc(t)} · ${n}`, `data-tahun="${esc(t)}"`, tahun === t)),
-  ].join('');
-  let barisBulan = '';
-  if (tahun) {
-    const bulanIni = hitung(daftar.filter((k) => (k.tanggal || '').startsWith(tahun)), (t) => t.slice(5, 7))
-      .sort((a, b) => a[0].localeCompare(b[0]));
-    if (bulanIni.length > 1) {
-      barisBulan = `
-      <div class="chip-gulir" role="group" aria-label="Bulan">
-        ${chip('Semua bulan', 'data-bulan=""', !bulan)}
-        ${bulanIni.map(([b, n]) => chip(`${NAMA_BULAN[Number(b) - 1]} · ${n}`, `data-bulan="${esc(b)}"`, bulan === b)).join('')}
-      </div>`;
-    }
-  }
+/** Dua kotak tanggal "Dari" dan "Sampai", dibatasi tanggal karya paling awal dan paling akhir. */
+export function htmlRentangWaktu(daftar) {
+  const tanggal = daftar.map((k) => k.tanggal).filter(Boolean).sort();
+  if (tanggal.length < 2 || tanggal[0] === tanggal[tanggal.length - 1]) return '';
+  const min = esc(tanggal[0]);
+  const max = esc(tanggal[tanggal.length - 1]);
   return `
-    <span class="label-filter">Waktu</span>
-    <div class="chip-gulir" role="group" aria-label="Tahun">${barisTahun}</div>
-    ${barisBulan}`;
+    <span class="label-filter">Saring menurut waktu</span>
+    <div class="rentang-waktu">
+      <label class="isian-tanggal">
+        <span>Dari</span>
+        <input type="date" id="tanggal-dari" min="${min}" max="${max}">
+      </label>
+      <label class="isian-tanggal">
+        <span>Sampai</span>
+        <input type="date" id="tanggal-sampai" min="${min}" max="${max}">
+      </label>
+    </div>
+    <p class="bantuan" id="keterangan-rentang">Semua karya, ${esc(tanggalPanjang(tanggal[0]))} sampai ${esc(tanggalPanjang(tanggal[tanggal.length - 1]))}.</p>
+    <button type="button" class="tombol-teks" id="hapus-rentang" hidden>Tampilkan semua lagi</button>`;
 }
 
 // ---------------------------------------------------------------------
@@ -177,5 +164,130 @@ export function hidupkanGaleri(akar) {
     grid.removeEventListener('pointerup', onLepas);
     grid.removeEventListener('pointercancel', onLepas);
     grid.removeEventListener('pointerout', onKeluar);
+  };
+}
+
+// ---------------------------------------------------------------------
+// Film Kenangan: foto anak diputar bergantian di layar besar
+// ---------------------------------------------------------------------
+
+const FILM_MAKS = 12;
+const DURASI_FILM = 4200; // ms per foto
+
+function acakSalin(daftar) {
+  const h = [...daftar];
+  for (let i = h.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [h[i], h[j]] = [h[j], h[i]];
+  }
+  return h;
+}
+
+/** Layar "Film Kenangan" untuk halaman anak. Kosong kalau karyanya kurang dari 2. */
+export function htmlFilmKenangan(daftar, anak) {
+  if (daftar.length < 2) return '';
+  const film = acakSalin(daftar).slice(0, FILM_MAKS);
+  const bar = film.map(() => '<i><b></b></i>').join('');
+  const slide = film.map((k, i) => {
+    const usia = usiaKarya(k, anak);
+    const ket = [usia !== null ? `${usia} tahun` : '', tanggalPanjang(k.tanggal)].filter(Boolean).join(' · ');
+    return `
+      <figure class="film-slide kb-film-${i % 4}" data-i="${i}" data-id="${k.id}" data-foto="${k.fotoId}" data-thumb="${k.thumbId}">
+        <img alt="${esc(k.judul || 'Karya')}">
+        <figcaption>
+          <strong>${esc(k.judul || k.acara || k.lokasi || 'Karya')}</strong>
+          <span>${esc(ket)}</span>
+        </figcaption>
+      </figure>`;
+  }).join('');
+  return `
+    <section class="film" aria-label="Film kenangan, foto berganti sendiri">
+      <div class="film-judul"><span>🎬 Film Kenangan</span></div>
+      <div class="film-bar" aria-hidden="true">${bar}</div>
+      <div class="film-layar">${slide}</div>
+      <p class="film-petunjuk" aria-hidden="true">Ketuk untuk membuka · geser untuk pindah · tahan untuk berhenti</p>
+    </section>`;
+}
+
+/** Menjalankan Film Kenangan. `buka(id)` dipanggil saat foto diketuk. Mengembalikan pembersih. */
+export function putarFilm(akar, buka) {
+  const film = akar.querySelector('.film');
+  if (!film) return () => {};
+  const slide = [...film.querySelectorAll('.film-slide')];
+  const bar = [...film.querySelectorAll('.film-bar i')];
+  const n = slide.length;
+  const gerak = !geraknyaDikurangi();
+  let ke = -1;
+  let jam = null;
+  let ditahan = false;
+  let mulaiTekan = null;
+
+  const muat = async (i) => {
+    const s = slide[(i + n) % n];
+    const img = s.querySelector('img');
+    if (img.src) return;
+    // Foto penuh untuk layar besar; gambar kecil dipakai dulu supaya cepat tampil.
+    const kecil = await ambilMedia(s.dataset.thumb);
+    if (kecil && !img.src && img.isConnected) img.src = urlBlob(kecil.blob);
+    const penuh = await ambilMedia(s.dataset.foto);
+    if (penuh && img.isConnected) img.src = urlBlob(penuh.blob);
+  };
+
+  const tampil = (i) => {
+    ke = (i + n) % n;
+    slide.forEach((s, j) => {
+      s.classList.toggle('aktif', j === ke);
+      if (j === ke) { s.classList.remove('main'); void s.offsetWidth; s.classList.add('main'); }
+    });
+    bar.forEach((b, j) => {
+      b.classList.toggle('selesai', j < ke);
+      b.classList.remove('jalan');
+      if (j === ke) { void b.offsetWidth; b.classList.add('jalan'); }
+    });
+    muat(ke); muat(ke + 1);
+    clearTimeout(jam);
+    if (gerak && !ditahan) jam = setTimeout(() => tampil(ke + 1), DURASI_FILM);
+  };
+
+  const jeda = (ya) => {
+    ditahan = ya;
+    film.classList.toggle('dijeda', ya);
+    clearTimeout(jam);
+    if (!ya && gerak) jam = setTimeout(() => tampil(ke + 1), DURASI_FILM / 2);
+  };
+
+  const onTekan = (e) => {
+    mulaiTekan = { x: e.clientX, y: e.clientY, t: Date.now() };
+    jeda(true);
+  };
+  const onLepas = (e) => {
+    if (!mulaiTekan) return;
+    const dx = e.clientX - mulaiTekan.x;
+    const dy = e.clientY - mulaiTekan.y;
+    const lama = Date.now() - mulaiTekan.t;
+    mulaiTekan = null;
+    jeda(false);
+    if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) { tampil(ke + (dx < 0 ? 1 : -1)); return; }
+    if (lama < 350 && Math.abs(dx) < 10 && Math.abs(dy) < 10) {
+      percikan(e.clientX, e.clientY);
+      const id = slide[ke].dataset.id;
+      setTimeout(() => buka(id), gerak ? 280 : 0);
+    }
+  };
+  const onBatal = () => { mulaiTekan = null; jeda(false); };
+  const layar = film.querySelector('.film-layar');
+  layar.addEventListener('pointerdown', onTekan);
+  layar.addEventListener('pointerup', onLepas);
+  layar.addEventListener('pointercancel', onBatal);
+  const onTerlihat = () => { if (document.hidden) clearTimeout(jam); else if (!ditahan) tampil(ke); };
+  document.addEventListener('visibilitychange', onTerlihat);
+
+  tampil(0);
+  return () => {
+    clearTimeout(jam);
+    layar.removeEventListener('pointerdown', onTekan);
+    layar.removeEventListener('pointerup', onLepas);
+    layar.removeEventListener('pointercancel', onBatal);
+    document.removeEventListener('visibilitychange', onTerlihat);
   };
 }

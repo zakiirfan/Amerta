@@ -2,7 +2,7 @@
 // supaya aplikasi bisa dibuka tanpa internet.
 // Service worker ini TIDAK pernah mengirim data pengguna ke mana pun.
 
-// Versi: 0.14.4
+// Versi: 0.15.0
 // Baris "Versi" di atas diisi otomatis oleh tools/buat-satu-file.js dari js/version.js.
 // Jangan dihapus: HP hanya tahu ada versi baru kalau isi file sw.js ini berubah.
 // (Safari tidak selalu memeriksa perubahan di js/version.js.)
@@ -36,6 +36,7 @@ const FILES = [
   'js/pdf.js',
   'js/pdf-karya.js',
   'js/galeri.js',
+  'js/galeri-hidup.js',
   'js/layar-karya.js',
   'js/layar-cari.js',
   'js/zip.js',

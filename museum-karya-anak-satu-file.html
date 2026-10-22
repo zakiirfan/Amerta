@@ -1012,6 +1012,118 @@ body {
 /* Selama tali berjalan sendiri, "snap" dimatikan supaya gerakannya halus */
 .jemuran-geser.berjalan { scroll-snap-type: none; }
 
+/* =====================================================================
+   Galeri anak yang "hidup" (versi 0.15)
+   ===================================================================== */
+.filter-waktu { margin: 14px 0 2px; }
+.filter-waktu:empty { display: none; }
+
+.galeri-hidup .grid-karya {
+  position: relative;
+  gap: 12px;
+  perspective: 900px;
+  padding: 4px 2px 6px;
+}
+/* Polaroid miring sedikit, bisa dimiringkan 3D oleh jari */
+.galeri-hidup .sel-karya {
+  border-radius: 10px;
+  box-shadow: 3px 4px 0 var(--tinta);
+  transform: rotate(var(--miring, 0deg)) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  transition: transform 0.25s cubic-bezier(0.3, 1.5, 0.5, 1), box-shadow 0.2s;
+  will-change: transform;
+}
+.galeri-hidup .sel-karya.ditekan {
+  transform: rotate(0deg) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) scale(1.06);
+  box-shadow: 6px 8px 0 var(--tinta);
+  z-index: 2;
+}
+.galeri-hidup .sel-karya:active { transform: rotate(0deg) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) scale(1.06); }
+@media (hover: hover) {
+  .galeri-hidup .sel-karya:hover {
+    transform: rotate(0deg) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) scale(1.05);
+    z-index: 2;
+  }
+}
+/* Kilau yang mengikuti jari */
+.galeri-hidup .sel-karya::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at var(--kx, 50%) var(--ky, 50%), rgba(255, 255, 255, 0.55), transparent 55%);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.galeri-hidup .sel-karya.ditekan::after { opacity: 1; }
+@media (hover: hover) { .galeri-hidup .sel-karya:hover::after { opacity: 1; } }
+.galeri-hidup .tanda-cerita, .galeri-hidup .centang { z-index: 1; }
+
+/* Foto dilempar masuk seperti kartu */
+@keyframes lempar {
+  from { opacity: 0; transform: translateY(46px) rotate(calc(var(--miring, 0deg) * 7)) scale(0.55); }
+  to { opacity: 1; transform: rotate(var(--miring, 0deg)); }
+}
+.layar.masuk .galeri-hidup .grid-karya > .sel-karya,
+.galeri-hidup.ganti .grid-karya > .sel-karya {
+  animation: lempar 0.6s cubic-bezier(0.2, 0.9, 0.3, 1.25) backwards;
+  animation-delay: var(--tunda, 0s);
+}
+/* Saat filter diganti: hanya memudar (tanpa transform, supaya bar PDF tetap menempel) */
+@keyframes pudar-masuk { from { opacity: 0.2; } to { opacity: 1; } }
+.galeri-hidup.ganti { animation: pudar-masuk 0.3s ease-out; }
+
+/* Ken Burns: foto bergerak pelan seperti film dokumenter */
+@keyframes kb-0 { from { transform: scale(1.04) translate(0, 0); } to { transform: scale(1.2) translate(-5%, -4%); } }
+@keyframes kb-1 { from { transform: scale(1.18) translate(-4%, 3%); } to { transform: scale(1.04) translate(3%, -2%); } }
+@keyframes kb-2 { from { transform: scale(1.05) translate(4%, 0); } to { transform: scale(1.2) translate(-3%, 4%); } }
+@keyframes kb-3 { from { transform: scale(1.2) translate(3%, 3%); } to { transform: scale(1.06) translate(-2%, -3%); } }
+.galeri-hidup .sel-karya img { transform-origin: 50% 50%; }
+.galeri-hidup .sel-karya.tampak.kb-0 img { animation: kb-0 9s ease-in-out infinite alternate; }
+.galeri-hidup .sel-karya.tampak.kb-1 img { animation: kb-1 10s ease-in-out infinite alternate; }
+.galeri-hidup .sel-karya.tampak.kb-2 img { animation: kb-2 11s ease-in-out infinite alternate; }
+.galeri-hidup .sel-karya.tampak.kb-3 img { animation: kb-3 9.5s ease-in-out infinite alternate; }
+.galeri-hidup .mode-pilih .sel-karya img { animation-play-state: paused; }
+
+/* Diketuk: memantul sebelum terbuka */
+@keyframes boing {
+  0% { transform: scale(1); }
+  35% { transform: scale(1.14) rotate(-3deg); }
+  65% { transform: scale(0.94) rotate(2deg); }
+  100% { transform: scale(1.04); }
+}
+.layar .galeri-hidup .grid-karya > .sel-karya.diketuk { animation: boing 0.32s ease-out both; z-index: 3; }
+
+/* Percikan bintang di titik ketukan */
+.percikan { position: fixed; z-index: 45; width: 0; height: 0; pointer-events: none; }
+.percikan span {
+  position: absolute;
+  left: -7px;
+  top: -9px;
+  font-size: 15px;
+  line-height: 1;
+  animation: percik 0.7s cubic-bezier(0.2, 0.8, 0.3, 1) forwards;
+}
+@keyframes percik {
+  0% { transform: translate(0, 0) scale(0.4); opacity: 1; }
+  100% { transform: translate(var(--dx), var(--dy)) scale(1.1) rotate(160deg); opacity: 0; }
+}
+
+/* Hati kecil yang melayang dari foto */
+.hati-melayang {
+  position: absolute;
+  z-index: 4;
+  font-size: 20px;
+  line-height: 1;
+  pointer-events: none;
+  text-shadow: 0 0 2px #fff, 0 0 4px #fff;
+  animation: melayang-naik 2.2s ease-out forwards;
+}
+@keyframes melayang-naik {
+  0% { transform: translate(-50%, 0) scale(0.3); opacity: 0; }
+  15% { transform: translate(-50%, -8px) scale(1.15); opacity: 1; }
+  100% { transform: translate(calc(-50% + 14px), -70px) scale(0.9) rotate(12deg); opacity: 0; }
+}
+
 /* Khusus versi satu file */
 .pita-satu-file {
   padding: 6px 16px;
@@ -1099,7 +1211,7 @@ self.MKA_SATU_FILE = true;
 // Naikkan angka ini SETIAP kali ada perubahan file sebelum deploy,
 // supaya HP pengguna mengunduh versi baru.
 // File ini dipakai oleh halaman (window) dan service worker (self).
-self.APP_VERSION = '0.14.4';
+self.APP_VERSION = '0.15.0';
 
 const __modul = {};
 // ===== js/pwa.js =====
@@ -2543,6 +2655,194 @@ async function buatDanSimpanPdf(daftarKarya) {
 return { buatDanSimpanPdf };
 })();
 
+// ===== js/galeri-hidup.js =====
+__modul['galeri-hidup.js'] = (() => {
+'use strict';
+// Galeri anak yang "hidup": foto dilempar masuk, bergerak pelan (Ken Burns),
+// miring 3D mengikuti jari, memercikkan bintang saat diketuk, dan hati melayang.
+// Ditambah filter waktu (tahun lalu bulan) untuk halaman anak.
+// Semua gerakan dimatikan kalau HP memakai "kurangi gerakan".
+
+const { esc } = __modul['ui.js'];
+
+const geraknyaDikurangi = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const NAMA_BULAN = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+
+// ---------------------------------------------------------------------
+// Filter waktu
+// ---------------------------------------------------------------------
+
+/** Saring daftar karya menurut tahun ('2025') dan bulan ('07'); kosong = semua. */
+function saringWaktu(daftar, { tahun = '', bulan = '' } = {}) {
+  return daftar.filter((k) => {
+    const t = k.tanggal || '';
+    if (tahun && t.slice(0, 4) !== tahun) return false;
+    if (bulan && t.slice(5, 7) !== bulan) return false;
+    return true;
+  });
+}
+
+function hitung(daftar, ambil) {
+  const peta = new Map();
+  daftar.forEach((k) => {
+    const v = ambil(k.tanggal || '');
+    if (v) peta.set(v, (peta.get(v) || 0) + 1);
+  });
+  return [...peta.entries()].sort((a, b) => b[0].localeCompare(a[0]));
+}
+
+/** Tombol filter tahun, dan bulan kalau satu tahun dipilih. Kosong kalau semua karya di bulan yang sama. */
+function htmlFilterWaktu(daftar, { tahun = '', bulan = '' } = {}) {
+  const daftarTahun = hitung(daftar, (t) => t.slice(0, 4));
+  const semuaBulan = hitung(daftar, (t) => t.slice(0, 7));
+  if (semuaBulan.length < 2) return '';
+  const chip = (label, data, aktif) => `
+    <button type="button" class="chip" ${data} aria-pressed="${aktif}">${label}</button>`;
+  const barisTahun = [
+    chip(`Semua · ${daftar.length}`, 'data-tahun=""', !tahun),
+    ...daftarTahun.map(([t, n]) => chip(`${esc(t)} · ${n}`, `data-tahun="${esc(t)}"`, tahun === t)),
+  ].join('');
+  let barisBulan = '';
+  if (tahun) {
+    const bulanIni = hitung(daftar.filter((k) => (k.tanggal || '').startsWith(tahun)), (t) => t.slice(5, 7))
+      .sort((a, b) => a[0].localeCompare(b[0]));
+    if (bulanIni.length > 1) {
+      barisBulan = `
+      <div class="chip-gulir" role="group" aria-label="Bulan">
+        ${chip('Semua bulan', 'data-bulan=""', !bulan)}
+        ${bulanIni.map(([b, n]) => chip(`${NAMA_BULAN[Number(b) - 1]} · ${n}`, `data-bulan="${esc(b)}"`, bulan === b)).join('')}
+      </div>`;
+    }
+  }
+  return `
+    <span class="label-filter">Waktu</span>
+    <div class="chip-gulir" role="group" aria-label="Tahun">${barisTahun}</div>
+    ${barisBulan}`;
+}
+
+// ---------------------------------------------------------------------
+// Gerakan
+// ---------------------------------------------------------------------
+
+/** Percikan bintang kecil di titik (x, y) layar. */
+function percikan(x, y) {
+  if (geraknyaDikurangi()) return;
+  const wadah = document.createElement('div');
+  wadah.className = 'percikan';
+  wadah.setAttribute('aria-hidden', 'true');
+  wadah.style.left = `${x}px`;
+  wadah.style.top = `${y}px`;
+  const warna = ['#F6C760', '#EC6F5A', '#8AD6D1', '#8E9BD6', '#FF8C52', '#F3B6CF'];
+  for (let i = 0; i < 10; i++) {
+    const s = document.createElement('span');
+    const sudut = (Math.PI * 2 * i) / 10 + Math.random() * 0.4;
+    const jauh = 34 + Math.random() * 30;
+    s.style.setProperty('--dx', `${Math.cos(sudut) * jauh}px`);
+    s.style.setProperty('--dy', `${Math.sin(sudut) * jauh}px`);
+    s.style.color = warna[i % warna.length];
+    s.textContent = i % 3 ? '★' : '✦';
+    wadah.append(s);
+  }
+  document.body.append(wadah);
+  setTimeout(() => wadah.remove(), 800);
+}
+
+/**
+ * Menghidupkan galeri di dalam `akar` (wadah .galeri-hidup).
+ * Mengembalikan fungsi pembersih.
+ */
+function hidupkanGaleri(akar) {
+  const grid = akar.querySelector('.grid-karya');
+  if (!grid) return () => {};
+  const kotak = [...grid.querySelectorAll('.sel-karya')];
+
+  // Setiap foto sedikit miring dan bergerak ke arah berbeda, masuk bergantian.
+  kotak.forEach((k, i) => {
+    const miring = ((i * 37) % 9) / 2 - 2; // -2 .. 2 derajat, tetap sama tiap dibuka
+    k.style.setProperty('--miring', `${miring}deg`);
+    k.style.setProperty('--tunda', `${Math.min(i * 0.07, 0.8).toFixed(2)}s`);
+    k.classList.add(`kb-${i % 4}`);
+  });
+  if (geraknyaDikurangi()) return () => {};
+
+  // Ken Burns hanya untuk foto yang sedang terlihat (hemat baterai).
+  const io = 'IntersectionObserver' in window
+    ? new IntersectionObserver((entri) => {
+      entri.forEach((e) => e.target.classList.toggle('tampak', e.isIntersecting));
+    })
+    : null;
+  kotak.forEach((k) => (io ? io.observe(k) : k.classList.add('tampak')));
+
+  // Miring 3D mengikuti jari/mouse, dengan kilau.
+  const miringKe = (k, e) => {
+    const r = k.getBoundingClientRect();
+    const px = (e.clientX - r.left) / r.width;
+    const py = (e.clientY - r.top) / r.height;
+    k.style.setProperty('--ry', `${(px - 0.5) * 18}deg`);
+    k.style.setProperty('--rx', `${(0.5 - py) * 18}deg`);
+    k.style.setProperty('--kx', `${px * 100}%`);
+    k.style.setProperty('--ky', `${py * 100}%`);
+  };
+  const lepas = (k) => {
+    k.classList.remove('ditekan');
+    k.style.setProperty('--rx', '0deg');
+    k.style.setProperty('--ry', '0deg');
+  };
+  const onTekan = (e) => {
+    const k = e.target.closest('.sel-karya');
+    if (!k || grid.classList.contains('mode-pilih')) return;
+    k.classList.add('ditekan');
+    miringKe(k, e);
+  };
+  const onGerak = (e) => {
+    const k = e.target.closest('.sel-karya');
+    if (!k || grid.classList.contains('mode-pilih')) return;
+    if (e.pointerType === 'mouse' || k.classList.contains('ditekan')) miringKe(k, e);
+  };
+  const onLepas = (e) => {
+    const k = e.target.closest('.sel-karya');
+    if (k) lepas(k);
+  };
+  const onKeluar = (e) => {
+    if (e.target.classList && e.target.classList.contains('sel-karya')) lepas(e.target);
+  };
+  grid.addEventListener('pointerdown', onTekan);
+  grid.addEventListener('pointermove', onGerak);
+  grid.addEventListener('pointerup', onLepas);
+  grid.addEventListener('pointercancel', onLepas);
+  grid.addEventListener('pointerout', onKeluar);
+
+  // Sesekali hati kecil melayang dari salah satu foto yang terlihat.
+  const jamHati = setInterval(() => {
+    if (document.hidden || grid.classList.contains('mode-pilih')) return;
+    const tampak = kotak.filter((k) => k.classList.contains('tampak'));
+    if (!tampak.length) return;
+    const k = tampak[Math.floor(Math.random() * tampak.length)];
+    const h = document.createElement('span');
+    h.className = 'hati-melayang';
+    h.setAttribute('aria-hidden', 'true');
+    h.textContent = Math.random() < 0.7 ? '♥' : '★';
+    h.style.left = `${k.offsetLeft + k.offsetWidth * (0.3 + Math.random() * 0.4)}px`;
+    h.style.top = `${k.offsetTop + k.offsetHeight * 0.35}px`;
+    h.style.color = ['#EC6F5A', '#FF8C52', '#F3B6CF', '#F6C760'][Math.floor(Math.random() * 4)];
+    grid.append(h);
+    setTimeout(() => h.remove(), 2200);
+  }, 2600);
+
+  return () => {
+    if (io) io.disconnect();
+    clearInterval(jamHati);
+    grid.removeEventListener('pointerdown', onTekan);
+    grid.removeEventListener('pointermove', onGerak);
+    grid.removeEventListener('pointerup', onLepas);
+    grid.removeEventListener('pointercancel', onLepas);
+    grid.removeEventListener('pointerout', onKeluar);
+  };
+}
+
+return { saringWaktu, htmlFilterWaktu, percikan, hidupkanGaleri };
+})();
+
 // ===== js/galeri.js =====
 __modul['galeri.js'] = (() => {
 'use strict';
@@ -2554,6 +2854,7 @@ const { esc, urlBlob } = __modul['ui.js'];
 const { pergi } = __modul['router.js'];
 const { punyaCerita } = __modul['karya.js'];
 const { buatDanSimpanPdf } = __modul['pdf-karya.js'];
+const { percikan } = __modul['galeri-hidup.js'];
 
 function htmlGaleri(daftar, { anakMap = null, tampilkanNama = false } = {}) {
   if (!daftar.length) return '';
@@ -2594,7 +2895,7 @@ async function muatThumb(img) {
 }
 
 /** Menghidupkan galeri di dalam `akar`. Mengembalikan fungsi pembersih. */
-function siapkanGaleri(akar, daftar) {
+function siapkanGaleri(akar, daftar, { hidup = false } = {}) {
   const galeri = akar.querySelector('.galeri');
   if (!galeri) return () => {};
   const grid = galeri.querySelector('.grid-karya');
@@ -2637,7 +2938,18 @@ function siapkanGaleri(akar, daftar) {
   grid.addEventListener('click', (e) => {
     const b = e.target.closest('.sel-karya');
     if (!b) return;
-    if (!modePilih) { pergi(`#/karya/${b.dataset.id}`); return; }
+    if (!modePilih) {
+      const tujuan = `#/karya/${b.dataset.id}`;
+      if (hidup && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        // Memantul dan memercikkan bintang dulu, baru dibuka.
+        percikan(e.clientX, e.clientY);
+        b.classList.add('diketuk');
+        setTimeout(() => pergi(tujuan), 320);
+      } else {
+        pergi(tujuan);
+      }
+      return;
+    }
     const id = b.dataset.id;
     if (terpilih.has(id)) terpilih.delete(id); else terpilih.add(id);
     b.classList.toggle('terpilih', terpilih.has(id));
@@ -3378,6 +3690,7 @@ const { modeSatuFile, sudahTerpasang } = __modul['pwa.js'];
 const { bukaPanduan } = __modul['panduan-pasang.js'];
 const { punyaCerita, urutkanTerbaru } = __modul['karya.js'];
 const { htmlGaleri, siapkanGaleri } = __modul['galeri.js'];
+const { htmlFilterWaktu, saringWaktu, hidupkanGaleri } = __modul['galeri-hidup.js'];
 const { pesanPengingatEkspor, tundaPengingat, jalankanEkspor } = __modul['cadangan.js'];
 const {
   maskotKrayon, coretanLatar, htmlJemuran, siapkanJemuran,
@@ -3510,11 +3823,31 @@ async function layarAnak(id) {
       <button type="button" class="tombol tombol-utama" data-ke="#/karya/baru?anak=${a.id}">+ Tambah karya untuk ${esc(a.nama)}</button>
       ${daftar.length ? `
         ${tanpaCerita ? `<p class="bantuan catatan-cerita">${tanpaCerita} karya belum punya cerita (bertanda <span class="tanda-cerita-contoh">Belum ada cerita</span>). Ketuk karyanya untuk melengkapi.</p>` : ''}
-        ${htmlGaleri(daftar)}` : `
+        <div class="filter-waktu" id="filter-waktu">${htmlFilterWaktu(daftar)}</div>
+        <div class="galeri-hidup" id="wadah-galeri">${htmlGaleri(daftar)}</div>` : `
         <section class="kartu kosong"><p>Belum ada karya milik ${esc(a.nama)}.</p></section>`}
       <button type="button" class="tombol" data-ke="#/anak/${a.id}/ubah">Ubah data anak</button>`,
     siapkan(main) {
-      this.bersihkan = siapkanGaleri(main, daftar);
+      const wadah = main.querySelector('#wadah-galeri');
+      if (!wadah) return;
+      const keadaan = { tahun: '', bulan: '' };
+      let bersihGaleri = siapkanGaleri(main, daftar, { hidup: true });
+      let bersihHidup = hidupkanGaleri(wadah);
+      const filter = main.querySelector('#filter-waktu');
+      filter.addEventListener('click', (e) => {
+        const c = e.target.closest('.chip');
+        if (!c) return;
+        if ('tahun' in c.dataset) { keadaan.tahun = c.dataset.tahun; keadaan.bulan = ''; }
+        if ('bulan' in c.dataset) keadaan.bulan = c.dataset.bulan;
+        filter.innerHTML = htmlFilterWaktu(daftar, keadaan);
+        const terpilih = saringWaktu(daftar, keadaan);
+        bersihGaleri(); bersihHidup();
+        wadah.innerHTML = htmlGaleri(terpilih);
+        wadah.classList.remove('ganti'); void wadah.offsetWidth; wadah.classList.add('ganti');
+        bersihGaleri = siapkanGaleri(main, terpilih, { hidup: true });
+        bersihHidup = hidupkanGaleri(wadah);
+      });
+      this.bersihkan = () => { bersihGaleri(); bersihHidup(); };
     },
   };
 }

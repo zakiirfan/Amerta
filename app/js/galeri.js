@@ -6,6 +6,7 @@ import { esc, urlBlob } from './ui.js';
 import { pergi } from './router.js';
 import { punyaCerita } from './karya.js';
 import { buatDanSimpanPdf } from './pdf-karya.js';
+import { percikan } from './galeri-hidup.js';
 
 export function htmlGaleri(daftar, { anakMap = null, tampilkanNama = false } = {}) {
   if (!daftar.length) return '';
@@ -46,7 +47,7 @@ async function muatThumb(img) {
 }
 
 /** Menghidupkan galeri di dalam `akar`. Mengembalikan fungsi pembersih. */
-export function siapkanGaleri(akar, daftar) {
+export function siapkanGaleri(akar, daftar, { hidup = false } = {}) {
   const galeri = akar.querySelector('.galeri');
   if (!galeri) return () => {};
   const grid = galeri.querySelector('.grid-karya');
@@ -89,7 +90,18 @@ export function siapkanGaleri(akar, daftar) {
   grid.addEventListener('click', (e) => {
     const b = e.target.closest('.sel-karya');
     if (!b) return;
-    if (!modePilih) { pergi(`#/karya/${b.dataset.id}`); return; }
+    if (!modePilih) {
+      const tujuan = `#/karya/${b.dataset.id}`;
+      if (hidup && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        // Memantul dan memercikkan bintang dulu, baru dibuka.
+        percikan(e.clientX, e.clientY);
+        b.classList.add('diketuk');
+        setTimeout(() => pergi(tujuan), 320);
+      } else {
+        pergi(tujuan);
+      }
+      return;
+    }
     const id = b.dataset.id;
     if (terpilih.has(id)) terpilih.delete(id); else terpilih.add(id);
     b.classList.toggle('terpilih', terpilih.has(id));

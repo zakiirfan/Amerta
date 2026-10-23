@@ -1382,7 +1382,7 @@ self.MKA_SATU_FILE = true;
 // Naikkan angka ini SETIAP kali ada perubahan file sebelum deploy,
 // supaya HP pengguna mengunduh versi baru.
 // File ini dipakai oleh halaman (window) dan service worker (self).
-self.APP_VERSION = '0.17.0';
+self.APP_VERSION = '0.17.1';
 
 const __modul = {};
 // ===== js/pwa.js =====
@@ -2647,7 +2647,9 @@ const { hariIni } = __modul['usia.js'];
 
 const FOTO_SISI_MAKS = 2000;   // piksel, sisi terpanjang
 const THUMB_SISI_MAKS = 480;
-const VIDEO_DETIK_MAKS = 60;
+const VIDEO_DETIK_MAKS = 180; // 3 menit
+/** Teks batas durasi video untuk ditampilkan, misalnya "3 menit". */
+const TEKS_VIDEO_MAKS = `${VIDEO_DETIK_MAKS / 60} menit`;
 const VIDEO_BYTE_MAKS = 300 * 1024 * 1024;
 const SUARA_BYTE_MAKS = 30 * 1024 * 1024;
 
@@ -2840,7 +2842,7 @@ function ekstensi(tipe) {
   }[dasar] || 'bin';
 }
 
-return { FOTO_SISI_MAKS, VIDEO_DETIK_MAKS, VIDEO_BYTE_MAKS, SUARA_BYTE_MAKS, perkecil, prosesFoto, bacaTanggalExif, durasiMedia, formatDurasi, formatUkuran, ekstensi };
+return { FOTO_SISI_MAKS, VIDEO_DETIK_MAKS, TEKS_VIDEO_MAKS, VIDEO_BYTE_MAKS, SUARA_BYTE_MAKS, perkecil, prosesFoto, bacaTanggalExif, durasiMedia, formatDurasi, formatUkuran, ekstensi };
 })();
 
 // ===== js/simpan-file.js =====
@@ -4538,7 +4540,7 @@ function rekamSuara() {
   return bukaPerekam(false);
 }
 
-/** Hasil: { blob, tipe, durasi } atau null kalau batal. Maksimal 1 menit. */
+/** Hasil: { blob, tipe, durasi } atau null kalau batal. Video maksimal VIDEO_DETIK_MAKS (3 menit). */
 function rekamVideo() {
   return bukaPerekam(true);
 }
@@ -4703,7 +4705,7 @@ const {
 } = __modul['db.js'];
 const {
   prosesFoto, durasiMedia, formatDurasi, formatUkuran,
-  VIDEO_DETIK_MAKS, VIDEO_BYTE_MAKS, SUARA_BYTE_MAKS,
+  VIDEO_DETIK_MAKS, TEKS_VIDEO_MAKS, VIDEO_BYTE_MAKS, SUARA_BYTE_MAKS,
 } = __modul['media.js'];
 const { rekamSuara, rekamVideo, bisaRekam } = __modul['perekam.js'];
 const {
@@ -4852,7 +4854,7 @@ async function layarFormKarya(lama, anakAwal, bagian) {
           </div>
 
           <div class="isian">
-            <span class="label">Video pendek <span class="redup">(maksimal 1 menit)</span></span>
+            <span class="label">Video pendek <span class="redup">(maksimal ${TEKS_VIDEO_MAKS})</span></span>
             <div id="wadah-video" class="daftar-media"></div>
             <div class="baris-tombol" id="tombol-video">
               ${bisaRekam() ? '<button type="button" class="tombol" id="rekam-video">🎬 Rekam video</button>' : ''}
@@ -5177,7 +5179,7 @@ function siapkanFormKarya(main, { lama, semuaAnak, saran, bagian }) {
     if (durasi > VIDEO_DETIK_MAKS + 0.5) {
       await pemberitahuan({
         judul: 'Video terlalu panjang',
-        pesan: `Video ini ${formatDurasi(durasi)}. Maksimal 1 menit. Pilih video yang lebih pendek.`,
+        pesan: `Video ini ${formatDurasi(durasi)}. Maksimal ${TEKS_VIDEO_MAKS}. Pilih video yang lebih pendek.`,
       });
       return;
     }
@@ -5831,7 +5833,7 @@ const {
 } = __modul['db.js'];
 const { esc, konfirmasi, kabar, lembarProgres, pemberitahuan } = __modul['ui.js'];
 const { pergi } = __modul['router.js'];
-const { formatUkuran } = __modul['media.js'];
+const { formatUkuran, TEKS_VIDEO_MAKS } = __modul['media.js'];
 const { tanggalPanjang } = __modul['usia.js'];
 const { mintaPenyimpananPermanen, modeSatuFile, sudahTerpasang } = __modul['pwa.js'];
 const { bukaPanduan } = __modul['panduan-pasang.js'];
@@ -5897,7 +5899,7 @@ async function layarPengaturan() {
           ${perkiraan && perkiraan.usage ? `<li><span>Total dipakai di browser</span><strong>${formatUkuran(perkiraan.usage)}</strong></li>` : ''}
         </ul>
         <p class="bantuan">${penjelasanPermanen}</p>
-        <p class="bantuan">Foto dikompres (sisi terpanjang 2000 piksel). Video maksimal 1 menit.</p>
+        <p class="bantuan">Foto dikompres (sisi terpanjang 2000 piksel). Video maksimal ${TEKS_VIDEO_MAKS}.</p>
       </section>
 
       <section class="kartu kartu-risiko">

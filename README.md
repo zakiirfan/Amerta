@@ -22,7 +22,7 @@ Status: **semua fitur MVP sudah dibuat** (versi 0.9.0). Sudah diuji di browser k
 
 - **Direktori anak**: nama dan tanggal lahir (opsional). Anak yang masih punya karya tidak bisa dihapus.
 - **Tambah karya**: tiga isian wajib (foto dari kamera/galeri, anak, lokasi), dengan saran lokasi dari karya sebelumnya.
-  Isian opsional: judul, cerita (ketik, rekam suara, impor rekaman), video maksimal 1 menit, acara, isi gambar,
+  Isian opsional: judul, cerita (ketik, rekam suara, impor rekaman), video maksimal 3 menit, acara, isi gambar,
   tanggal (otomatis dari foto), dan usia (otomatis dari tanggal lahir, bisa diubah).
 - **Galeri per anak**, urut dari terbaru. Karya tanpa cerita diberi tanda "Belum ada cerita".
 - **Pencarian**: kotak cari (lokasi, acara, isi gambar, judul, cerita ketik), filter cepat
@@ -235,7 +235,7 @@ di `js/db.js` (sekarang **2**).
 | `judul`, `ceritaTeks`, `acara` | teks | opsional (boleh kosong) |
 | `isi` | daftar teks | kata kunci isi gambar, huruf kecil |
 | `suara` | daftar `{ id, durasi, tipe, sumber }` | rekaman cerita (`sumber`: `rekam`/`impor`) |
-| `video` | `{ id, durasi, tipe }` atau `null` | video maksimal 1 menit |
+| `video` | `{ id, durasi, tipe }` atau `null` | video maksimal 3 menit |
 | `tanggal` | teks `YYYY-MM-DD` | default dari tanggal foto, atau hari ini |
 | `usiaManual` | angka atau `null` | `null` = usia dihitung otomatis dari tanggal lahir |
 | `contoh` | true/false | data contoh |
@@ -289,7 +289,7 @@ naikkan `FORMAT` di `js/cadangan.js` dan tetap dukung format lama saat impor.
 | Hal | Batas |
 |---|---|
 | Foto | dikompres ke JPEG, sisi terpanjang 2000 px |
-| Video | maksimal 1 menit; dari galeri maksimal 300 MB; rekam langsung ±9 MB/menit (720p) |
+| Video | maksimal 3 menit; dari galeri maksimal 300 MB; rekam langsung ±9 MB/menit (720p) |
 | Rekam suara | maksimal 5 menit per rekaman |
 | Impor rekaman | maksimal 30 MB per file |
 

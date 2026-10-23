@@ -17,9 +17,8 @@ export function htmlGaleri(daftar, { anakMap = null, tampilkanNama = false, labe
       <button type="button" class="sel-karya" data-id="${k.id}" aria-label="${esc(label)}">
         <img data-thumb="${k.thumbId}" alt="">
         ${tampilkanNama && anak ? `<span class="tag-anak">${esc(anak.nama)}</span>` : ''}
-        ${labelJudul
-    ? `<span class="label-judul">${esc(k.judul || k.acara || k.lokasi || 'Tanpa judul')}</span>`
-    : (punyaCerita(k) ? '' : '<span class="tanda-cerita">Belum ada cerita</span>')}
+        ${labelJudul ? `<span class="label-judul">${esc(k.judul || k.acara || k.lokasi || 'Tanpa judul')}</span>` : ''}
+        ${punyaCerita(k) ? '' : `<span class="tanda-cerita${labelJudul ? ' tanda-atas' : ''}">Belum ada cerita</span>`}
         <span class="centang" aria-hidden="true">✓</span>
       </button>`;
   }).join('');

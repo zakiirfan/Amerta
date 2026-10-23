@@ -5,7 +5,7 @@ import { hariIni } from './usia.js';
 export const FOTO_SISI_MAKS = 2000;   // piksel, sisi terpanjang
 const THUMB_SISI_MAKS = 480;
 export const VIDEO_DETIK_MAKS = 60;
-export const VIDEO_BYTE_MAKS = 50 * 1024 * 1024;
+export const VIDEO_BYTE_MAKS = 300 * 1024 * 1024;
 export const SUARA_BYTE_MAKS = 30 * 1024 * 1024;
 
 function muatGambar(blob) {

@@ -1295,6 +1295,11 @@ body {
   padding: 3px 10px;
 }
 
+/* "Belum ada cerita" di galeri anak: di pojok kiri atas, judul tetap di bawah */
+.tanda-cerita.tanda-atas { top: 5px; bottom: auto; left: 5px; z-index: 1; }
+.galeri-hidup .grid-karya > .sel-karya:nth-child(6n + 1) .tanda-atas,
+.galeri-hidup .grid-karya > .sel-karya:nth-child(6n + 5) .tanda-atas { top: 8px; left: 8px; font-size: 0.78rem; }
+
 /* Khusus versi satu file */
 .pita-satu-file {
   padding: 6px 16px;
@@ -1382,7 +1387,7 @@ self.MKA_SATU_FILE = true;
 // Naikkan angka ini SETIAP kali ada perubahan file sebelum deploy,
 // supaya HP pengguna mengunduh versi baru.
 // File ini dipakai oleh halaman (window) dan service worker (self).
-self.APP_VERSION = '0.17.1';
+self.APP_VERSION = '0.17.2';
 
 const __modul = {};
 // ===== js/pwa.js =====
@@ -2183,8 +2188,9 @@ __modul['karya.js'] = (() => {
 
 const { hitungUsia } = __modul['usia.js'];
 
+/** Karya dianggap sudah punya cerita kalau ada cerita tertulis, rekaman suara, atau video. */
 function punyaCerita(k) {
-  return !!((k.ceritaTeks && k.ceritaTeks.trim()) || (k.suara && k.suara.length));
+  return !!((k.ceritaTeks && k.ceritaTeks.trim()) || (k.suara && k.suara.length) || k.video);
 }
 
 /** Usia (tahun) saat karya dibuat: isian manual, atau dihitung dari tanggal lahir. */
@@ -3328,9 +3334,8 @@ function htmlGaleri(daftar, { anakMap = null, tampilkanNama = false, labelJudul 
       <button type="button" class="sel-karya" data-id="${k.id}" aria-label="${esc(label)}">
         <img data-thumb="${k.thumbId}" alt="">
         ${tampilkanNama && anak ? `<span class="tag-anak">${esc(anak.nama)}</span>` : ''}
-        ${labelJudul
-    ? `<span class="label-judul">${esc(k.judul || k.acara || k.lokasi || 'Tanpa judul')}</span>`
-    : (punyaCerita(k) ? '' : '<span class="tanda-cerita">Belum ada cerita</span>')}
+        ${labelJudul ? `<span class="label-judul">${esc(k.judul || k.acara || k.lokasi || 'Tanpa judul')}</span>` : ''}
+        ${punyaCerita(k) ? '' : `<span class="tanda-cerita${labelJudul ? ' tanda-atas' : ''}">Belum ada cerita</span>`}
         <span class="centang" aria-hidden="true">✓</span>
       </button>`;
   }).join('');

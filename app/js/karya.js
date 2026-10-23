@@ -2,8 +2,9 @@
 
 import { hitungUsia } from './usia.js';
 
+/** Karya dianggap sudah punya cerita kalau ada cerita tertulis, rekaman suara, atau video. */
 export function punyaCerita(k) {
-  return !!((k.ceritaTeks && k.ceritaTeks.trim()) || (k.suara && k.suara.length));
+  return !!((k.ceritaTeks && k.ceritaTeks.trim()) || (k.suara && k.suara.length) || k.video);
 }
 
 /** Usia (tahun) saat karya dibuat: isian manual, atau dihitung dari tanggal lahir. */

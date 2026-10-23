@@ -1279,3 +1279,8 @@ body {
   font-size: 0.9rem;
   padding: 3px 10px;
 }
+
+/* "Belum ada cerita" di galeri anak: di pojok kiri atas, judul tetap di bawah */
+.tanda-cerita.tanda-atas { top: 5px; bottom: auto; left: 5px; z-index: 1; }
+.galeri-hidup .grid-karya > .sel-karya:nth-child(6n + 1) .tanda-atas,
+.galeri-hidup .grid-karya > .sel-karya:nth-child(6n + 5) .tanda-atas { top: 8px; left: 8px; font-size: 0.78rem; }

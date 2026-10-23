@@ -1352,7 +1352,7 @@ self.MKA_SATU_FILE = true;
 // Naikkan angka ini SETIAP kali ada perubahan file sebelum deploy,
 // supaya HP pengguna mengunduh versi baru.
 // File ini dipakai oleh halaman (window) dan service worker (self).
-self.APP_VERSION = '0.16.0';
+self.APP_VERSION = '0.16.1';
 
 const __modul = {};
 // ===== js/pwa.js =====
@@ -2442,7 +2442,7 @@ const { hariIni } = __modul['usia.js'];
 const FOTO_SISI_MAKS = 2000;   // piksel, sisi terpanjang
 const THUMB_SISI_MAKS = 480;
 const VIDEO_DETIK_MAKS = 60;
-const VIDEO_BYTE_MAKS = 50 * 1024 * 1024;
+const VIDEO_BYTE_MAKS = 300 * 1024 * 1024;
 const SUARA_BYTE_MAKS = 30 * 1024 * 1024;
 
 function muatGambar(blob) {
@@ -3255,10 +3255,27 @@ const TABEL_CRC = (() => {
   return t;
 })();
 
+function lanjutCrc(crc, bytes) {
+  let c = crc;
+  for (let i = 0; i < bytes.length; i++) c = TABEL_CRC[(c ^ bytes[i]) & 0xFF] ^ (c >>> 8);
+  return c;
+}
+
 function crc32(bytes) {
-  let crc = 0xFFFFFFFF;
-  for (let i = 0; i < bytes.length; i++) crc = TABEL_CRC[(crc ^ bytes[i]) & 0xFF] ^ (crc >>> 8);
-  return (crc ^ 0xFFFFFFFF) >>> 0;
+  return (lanjutCrc(0xFFFFFFFF, bytes) ^ 0xFFFFFFFF) >>> 0;
+}
+
+// Video bisa ratusan MB: dibaca per potongan supaya memori HP tidak penuh.
+const POTONGAN = 4 * 1024 * 1024;
+
+/** CRC32 sebuah Blob, dibaca per potongan 4 MB. */
+async function crc32Blob(blob) {
+  let c = 0xFFFFFFFF;
+  for (let mulai = 0; mulai < blob.size; mulai += POTONGAN) {
+    const bytes = new Uint8Array(await blob.slice(mulai, mulai + POTONGAN).arrayBuffer());
+    c = lanjutCrc(c, bytes);
+  }
+  return (c ^ 0xFFFFFFFF) >>> 0;
 }
 
 function waktuDos(d) {
@@ -3282,7 +3299,7 @@ async function buatZip(daftar, onProgres) {
   for (let i = 0; i < daftar.length; i++) {
     const { nama, data } = daftar[i];
     const blob = typeof data === 'string' ? new Blob([data]) : data;
-    const crc = crc32(new Uint8Array(await blob.arrayBuffer()));
+    const crc = await crc32Blob(blob);
     const ukuran = blob.size;
     const namaB = enc.encode(nama);
     if (posisi + 30 + namaB.length + ukuran > 0xFFFFFFFF) {
@@ -3388,14 +3405,14 @@ async function bacaZip(blob) {
       } else if (e.metode !== 0) {
         throw new Error('Jenis kompresi file ini tidak didukung.');
       }
-      const bytes = new Uint8Array(await data.arrayBuffer());
-      if (crc32(bytes) !== e.crc) throw new Error(`File "${nama}" di dalam cadangan rusak.`);
-      return new Blob([bytes], { type: tipe });
+      if (await crc32Blob(data) !== e.crc) throw new Error(`File "${nama}" di dalam cadangan rusak.`);
+      // Potongan dari file zip (tidak disalin ke memori).
+      return new Blob([data], { type: tipe });
     },
   };
 }
 
-return { crc32, buatZip, bacaZip };
+return { crc32, crc32Blob, buatZip, bacaZip };
 })();
 
 // ===== js/cadangan.js =====

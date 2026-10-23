@@ -12,10 +12,27 @@ const TABEL_CRC = (() => {
   return t;
 })();
 
+function lanjutCrc(crc, bytes) {
+  let c = crc;
+  for (let i = 0; i < bytes.length; i++) c = TABEL_CRC[(c ^ bytes[i]) & 0xFF] ^ (c >>> 8);
+  return c;
+}
+
 export function crc32(bytes) {
-  let crc = 0xFFFFFFFF;
-  for (let i = 0; i < bytes.length; i++) crc = TABEL_CRC[(crc ^ bytes[i]) & 0xFF] ^ (crc >>> 8);
-  return (crc ^ 0xFFFFFFFF) >>> 0;
+  return (lanjutCrc(0xFFFFFFFF, bytes) ^ 0xFFFFFFFF) >>> 0;
+}
+
+// Video bisa ratusan MB: dibaca per potongan supaya memori HP tidak penuh.
+const POTONGAN = 4 * 1024 * 1024;
+
+/** CRC32 sebuah Blob, dibaca per potongan 4 MB. */
+export async function crc32Blob(blob) {
+  let c = 0xFFFFFFFF;
+  for (let mulai = 0; mulai < blob.size; mulai += POTONGAN) {
+    const bytes = new Uint8Array(await blob.slice(mulai, mulai + POTONGAN).arrayBuffer());
+    c = lanjutCrc(c, bytes);
+  }
+  return (c ^ 0xFFFFFFFF) >>> 0;
 }
 
 function waktuDos(d) {
@@ -39,7 +56,7 @@ export async function buatZip(daftar, onProgres) {
   for (let i = 0; i < daftar.length; i++) {
     const { nama, data } = daftar[i];
     const blob = typeof data === 'string' ? new Blob([data]) : data;
-    const crc = crc32(new Uint8Array(await blob.arrayBuffer()));
+    const crc = await crc32Blob(blob);
     const ukuran = blob.size;
     const namaB = enc.encode(nama);
     if (posisi + 30 + namaB.length + ukuran > 0xFFFFFFFF) {
@@ -145,9 +162,9 @@ export async function bacaZip(blob) {
       } else if (e.metode !== 0) {
         throw new Error('Jenis kompresi file ini tidak didukung.');
       }
-      const bytes = new Uint8Array(await data.arrayBuffer());
-      if (crc32(bytes) !== e.crc) throw new Error(`File "${nama}" di dalam cadangan rusak.`);
-      return new Blob([bytes], { type: tipe });
+      if (await crc32Blob(data) !== e.crc) throw new Error(`File "${nama}" di dalam cadangan rusak.`);
+      // Potongan dari file zip (tidak disalin ke memori).
+      return new Blob([data], { type: tipe });
     },
   };
 }

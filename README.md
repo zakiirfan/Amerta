@@ -289,7 +289,7 @@ naikkan `FORMAT` di `js/cadangan.js` dan tetap dukung format lama saat impor.
 | Hal | Batas |
 |---|---|
 | Foto | dikompres ke JPEG, sisi terpanjang 2000 px |
-| Video | maksimal 1 menit; dari galeri maksimal 50 MB; rekam langsung ±9 MB/menit (720p) |
+| Video | maksimal 1 menit; dari galeri maksimal 300 MB; rekam langsung ±9 MB/menit (720p) |
 | Rekam suara | maksimal 5 menit per rekaman |
 | Impor rekaman | maksimal 30 MB per file |
 
@@ -309,7 +309,9 @@ naikkan `FORMAT` di `js/cadangan.js` dan tetap dukung format lama saat impor.
   diputar di Android dan iPhone. Di browser lama, rekaman bisa berformat WebM yang mungkin tidak bisa
   diputar di iPhone lama setelah diimpor.
 - **Video dari galeri tidak dikompres ulang** (browser tidak bisa melakukannya dengan andal). Karena itu
-  ada batas 50 MB. Video yang direkam langsung di aplikasi jauh lebih kecil.
+  ada batas 300 MB per video. Video besar cepat menghabiskan ruang penyimpanan HP dan membuat file
+  cadangan besar. Video yang direkam langsung di aplikasi jauh lebih kecil.
+- **Cadangan dibuat dan dibaca per potongan 4 MB**, supaya video ratusan MB tidak memenuhi memori HP.
 - **Cadangan sangat besar** (ratusan video) bisa gagal dibuat di HP dengan memori kecil. Batas mutlak file zip: 4 GB.
 - **Tanggal foto**: diambil dari data EXIF foto JPEG. Foto yang diambil langsung dari kamera di iPhone
   sering tidak membawa tanggal, jadi tanggalnya menjadi hari ini (bisa diubah).

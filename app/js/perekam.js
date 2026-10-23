@@ -31,7 +31,7 @@ export function rekamSuara() {
   return bukaPerekam(false);
 }
 
-/** Hasil: { blob, tipe, durasi } atau null kalau batal. Maksimal 1 menit. */
+/** Hasil: { blob, tipe, durasi } atau null kalau batal. Video maksimal VIDEO_DETIK_MAKS (3 menit). */
 export function rekamVideo() {
   return bukaPerekam(true);
 }

@@ -5,7 +5,7 @@ import {
 } from './db.js';
 import { esc, konfirmasi, kabar, lembarProgres, pemberitahuan } from './ui.js';
 import { pergi } from './router.js';
-import { formatUkuran } from './media.js';
+import { formatUkuran, TEKS_VIDEO_MAKS } from './media.js';
 import { tanggalPanjang } from './usia.js';
 import { mintaPenyimpananPermanen, modeSatuFile, sudahTerpasang } from './pwa.js';
 import { bukaPanduan } from './panduan-pasang.js';
@@ -71,7 +71,7 @@ export async function layarPengaturan() {
           ${perkiraan && perkiraan.usage ? `<li><span>Total dipakai di browser</span><strong>${formatUkuran(perkiraan.usage)}</strong></li>` : ''}
         </ul>
         <p class="bantuan">${penjelasanPermanen}</p>
-        <p class="bantuan">Foto dikompres (sisi terpanjang 2000 piksel). Video maksimal 1 menit.</p>
+        <p class="bantuan">Foto dikompres (sisi terpanjang 2000 piksel). Video maksimal ${TEKS_VIDEO_MAKS}.</p>
       </section>
 
       <section class="kartu kartu-risiko">

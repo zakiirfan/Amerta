@@ -11,7 +11,7 @@ import {
 import { pergi, kembali, keBeranda } from './router.js';
 import { modeSatuFile, sudahTerpasang } from './pwa.js';
 import { bukaPanduan } from './panduan-pasang.js';
-import { punyaCerita, urutkanTerbaru } from './karya.js';
+import { urutkanTerbaru } from './karya.js';
 import { htmlGaleri, siapkanGaleri } from './galeri.js';
 import {
   htmlRentangWaktu, saringRentang, hidupkanGaleri, htmlFilmKenangan, putarFilm,
@@ -127,7 +127,6 @@ export async function layarAnak(id) {
   const a = await ambilAnak(id);
   if (!a) return layarAnakTidakAda();
   const daftar = urutkanTerbaru(await karyaMilikAnak(id));
-  const tanpaCerita = daftar.filter((k) => !punyaCerita(k)).length;
 
   const usia = a.tanggalLahir
     ? `<p>${esc(teksUsia(a.tanggalLahir))} · lahir ${esc(tanggalPanjang(a.tanggalLahir))}</p>`
@@ -147,10 +146,9 @@ export async function layarAnak(id) {
       </section>
       <button type="button" class="tombol tombol-utama" data-ke="#/karya/baru?anak=${a.id}">+ Tambah karya untuk ${esc(a.nama)}</button>
       ${daftar.length ? `
-        ${tanpaCerita ? `<p class="bantuan catatan-cerita">${tanpaCerita} karya belum punya cerita (bertanda <span class="tanda-cerita-contoh">Belum ada cerita</span>). Ketuk karyanya untuk melengkapi.</p>` : ''}
         ${htmlFilmKenangan(daftar, a)}
         <div class="filter-waktu" id="filter-waktu">${htmlRentangWaktu(daftar)}</div>
-        <div class="galeri-hidup" id="wadah-galeri">${htmlGaleri(daftar)}</div>` : `
+        <div class="galeri-hidup" id="wadah-galeri">${htmlGaleri(daftar, { labelJudul: true })}</div>` : `
         <section class="kartu kosong"><p>Belum ada karya milik ${esc(a.nama)}.</p></section>`}
       <button type="button" class="tombol" data-ke="#/anak/${a.id}/ubah">Ubah data anak</button>`,
     siapkan(main) {
@@ -176,7 +174,7 @@ export async function layarAnak(id) {
           keterangan.textContent = `Semua karya (${daftar.length}).`;
         }
         bersihGaleri(); bersihHidup();
-        wadah.innerHTML = terpilih.length ? htmlGaleri(terpilih)
+        wadah.innerHTML = terpilih.length ? htmlGaleri(terpilih, { labelJudul: true })
           : '<section class="kartu kosong"><p>Tidak ada karya di rentang waktu ini.</p></section>';
         wadah.classList.remove('ganti'); void wadah.offsetWidth; wadah.classList.add('ganti');
         bersihGaleri = siapkanGaleri(main, terpilih, { hidup: true });

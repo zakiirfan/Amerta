@@ -4,7 +4,9 @@ import { hariIni } from './usia.js';
 
 export const FOTO_SISI_MAKS = 2000;   // piksel, sisi terpanjang
 const THUMB_SISI_MAKS = 480;
-export const VIDEO_DETIK_MAKS = 60;
+export const VIDEO_DETIK_MAKS = 180; // 3 menit
+/** Teks batas durasi video untuk ditampilkan, misalnya "3 menit". */
+export const TEKS_VIDEO_MAKS = `${VIDEO_DETIK_MAKS / 60} menit`;
 export const VIDEO_BYTE_MAKS = 300 * 1024 * 1024;
 export const SUARA_BYTE_MAKS = 30 * 1024 * 1024;
 

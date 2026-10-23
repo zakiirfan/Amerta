@@ -5,7 +5,7 @@ import {
 } from './db.js';
 import {
   prosesFoto, durasiMedia, formatDurasi, formatUkuran,
-  VIDEO_DETIK_MAKS, VIDEO_BYTE_MAKS, SUARA_BYTE_MAKS,
+  VIDEO_DETIK_MAKS, TEKS_VIDEO_MAKS, VIDEO_BYTE_MAKS, SUARA_BYTE_MAKS,
 } from './media.js';
 import { rekamSuara, rekamVideo, bisaRekam } from './perekam.js';
 import {
@@ -154,7 +154,7 @@ async function layarFormKarya(lama, anakAwal, bagian) {
           </div>
 
           <div class="isian">
-            <span class="label">Video pendek <span class="redup">(maksimal 1 menit)</span></span>
+            <span class="label">Video pendek <span class="redup">(maksimal ${TEKS_VIDEO_MAKS})</span></span>
             <div id="wadah-video" class="daftar-media"></div>
             <div class="baris-tombol" id="tombol-video">
               ${bisaRekam() ? '<button type="button" class="tombol" id="rekam-video">🎬 Rekam video</button>' : ''}
@@ -479,7 +479,7 @@ function siapkanFormKarya(main, { lama, semuaAnak, saran, bagian }) {
     if (durasi > VIDEO_DETIK_MAKS + 0.5) {
       await pemberitahuan({
         judul: 'Video terlalu panjang',
-        pesan: `Video ini ${formatDurasi(durasi)}. Maksimal 1 menit. Pilih video yang lebih pendek.`,
+        pesan: `Video ini ${formatDurasi(durasi)}. Maksimal ${TEKS_VIDEO_MAKS}. Pilih video yang lebih pendek.`,
       });
       return;
     }

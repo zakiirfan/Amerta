@@ -8,7 +8,7 @@ import { punyaCerita } from './karya.js';
 import { buatDanSimpanPdf } from './pdf-karya.js';
 import { percikan } from './galeri-hidup.js';
 
-export function htmlGaleri(daftar, { anakMap = null, tampilkanNama = false } = {}) {
+export function htmlGaleri(daftar, { anakMap = null, tampilkanNama = false, labelJudul = false } = {}) {
   if (!daftar.length) return '';
   const kotak = daftar.map((k) => {
     const anak = anakMap && anakMap.get(k.anakId);
@@ -17,7 +17,9 @@ export function htmlGaleri(daftar, { anakMap = null, tampilkanNama = false } = {
       <button type="button" class="sel-karya" data-id="${k.id}" aria-label="${esc(label)}">
         <img data-thumb="${k.thumbId}" alt="">
         ${tampilkanNama && anak ? `<span class="tag-anak">${esc(anak.nama)}</span>` : ''}
-        ${punyaCerita(k) ? '' : '<span class="tanda-cerita">Belum ada cerita</span>'}
+        ${labelJudul
+    ? `<span class="label-judul">${esc(k.judul || k.acara || k.lokasi || 'Tanpa judul')}</span>`
+    : (punyaCerita(k) ? '' : '<span class="tanda-cerita">Belum ada cerita</span>')}
         <span class="centang" aria-hidden="true">✓</span>
       </button>`;
   }).join('');

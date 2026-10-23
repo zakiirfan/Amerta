@@ -1249,3 +1249,33 @@ body {
   grid-row: span 2;
 }
 .galeri-hidup .grid-karya > .sel-karya:nth-child(6n + 5) { grid-column: 2 / span 2; }
+
+/* Label judul karya di galeri anak (menggantikan "Belum ada cerita") */
+.label-judul {
+  position: absolute;
+  left: 5px;
+  right: 5px;
+  bottom: 5px;
+  z-index: 1;
+  padding: 2px 7px;
+  border: 1.5px solid var(--tinta);
+  border-radius: 8px;
+  background: rgba(255, 253, 248, 0.94);
+  color: var(--tinta);
+  font-size: 0.72rem;
+  font-weight: 800;
+  line-height: 1.35;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.galeri-hidup .grid-karya > .sel-karya:nth-child(6n + 1) .label-judul,
+.galeri-hidup .grid-karya > .sel-karya:nth-child(6n + 5) .label-judul {
+  left: 8px;
+  right: auto;
+  max-width: calc(100% - 16px);
+  bottom: 8px;
+  font-size: 0.9rem;
+  padding: 3px 10px;
+}
